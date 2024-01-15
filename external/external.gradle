@@ -1,0 +1,76 @@
+
+def RHMISources = [
+        "BMWClassic": [
+                "news/news.p7b": "news/rhmi/bmw/news.p7b",
+                "news/rhmi/ui_description.xml": "news/rhmi/ui_description.xml",
+                "news/rhmi/bmw/images.zip": "news/rhmi/bmw/images.zip",
+                "news/rhmi/common/images.zip": "news/rhmi/common/images.zip",
+                "news/rhmi/common/texts.zip": "news/rhmi/common/texts.zip",
+        ],
+        "MINIClassic": [
+                "news/news.p7b": "news/rhmi/mini/news.p7b",
+                "news/rhmi/mini/images.zip": "news/rhmi/mini/images.zip",
+        ],
+]
+
+// extract RHMI resources from official apps
+task confirmRHMIResources() {
+    doLast {
+        def bmwClassicFound = new FileNameByRegexFinder().getFileNames(file("../external").toString(), /(?i)bmw.*connected.*classic.*\.apk/)
+        def miniClassicFound = new FileNameByRegexFinder().getFileNames(file("../external").toString(), /(?i)mini.*connected.*classic.*\.apk/)
+        if (bmwClassicFound.isEmpty()) throw new MissingResourceException("Could not locate BMW Connected Classic APK in external directory")
+        if (miniClassicFound.isEmpty()) throw new MissingResourceException("Could not locate BMW Connected Classic APK in external directory")
+    }
+}
+
+task extractRHMIResources(type: Copy, dependsOn: confirmRHMIResources) {
+    description "Extracts necessary RHMI resources for compilation"
+
+    def destRoot = "src/gestalt/assets/carapplications"
+
+    def bmwClassicFound = new FileNameByRegexFinder().getFileNames(file("../external").toString(), /(?i)bmw.*connected.*classic.*\.apk/)
+    def miniClassicFound = new FileNameByRegexFinder().getFileNames(file("../external").toString(), /(?i)mini.*connected.*classic.*\.apk/)
+
+    def sources = [
+            "BMWClassic": bmwClassicFound[0],
+            "MINIClassic": miniClassicFound[0],
+    ]
+
+    // actually do the copy
+    sources.each { sourceZip ->
+        // only prepare the CopySpec if a destination file from this zip is missing
+        def missing = RHMISources[sourceZip.key].values().findAll {
+            !file("$destRoot/$it").exists()
+        }
+        if (!missing.isEmpty() && sourceZip.value != null) {
+            RHMISources[sourceZip.key].each { sourceFile ->
+                from({ zipTree(sourceZip.value) }) {
+                    include "assets/carapplications/${sourceFile.key}"
+                    eachFile { it.relativePath = new RelativePath(true, sourceFile.value) }
+                }
+            }
+            if (inputs.sourceFiles.empty) throw new MissingResourceException("Could not locate RHMI Resources in provided APK: ${sourceZip.value}")
+        }
+    }
+    into destRoot
+
+    // declare the list of expected files, to inform Gradle Caching
+    def outputFiles = RHMISources.values().collect({ sourceZip ->
+        sourceZip.values()
+    }).flatten().collect({
+        "$destRoot/$it"
+    })
+    outputs.files outputFiles
+
+    // make extra sure that the correct files were extracted from the APKs
+    doLast {
+        def missing = outputFiles.findAll {
+            !file(it).exists()
+        }
+        if (!missing.isEmpty()) {
+            throw new MissingResourceException("Missing required RHMI files:\n${missing.join("\n")}")
+        }
+    }
+}
+
+preBuild.dependsOn extractRHMIResources
