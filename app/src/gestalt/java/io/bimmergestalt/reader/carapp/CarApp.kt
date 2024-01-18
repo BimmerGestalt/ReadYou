@@ -18,14 +18,16 @@ import io.bimmergestalt.idriveconnectkit.rhmi.RHMIState
 import io.bimmergestalt.reader.carapp.views.FeedView
 import io.bimmergestalt.reader.carapp.views.HomeView
 import io.bimmergestalt.reader.carapp.views.ReadView
+import me.ash.reader.domain.service.RssService
 
 const val TAG = "ReaderGestalt"
 class CarApp(val iDriveConnectionStatus: IDriveConnectionStatus, securityAccess: SecurityAccess,
-             val carAppResources: CarAppResources
+             val carAppResources: CarAppResources, val rssService: RssService
 ) {
 
 	val carConnection: BMWRemotingServer
 	val carApp: RHMIApplication
+	val model: Model = Model()
 	val homeView: HomeView
 	val feedView: FeedView
 	val readView: ReadView
@@ -41,9 +43,9 @@ class CarApp(val iDriveConnectionStatus: IDriveConnectionStatus, securityAccess:
 
 		carApp = createRhmiApp()
 		val destStateId = carApp.components.values.filterIsInstance<RHMIComponent.EntryButton>().first().getAction()?.asHMIAction()?.target!!
-		homeView = HomeView(carApp.states[destStateId] as RHMIState)
-		feedView = FeedView(carApp.states[homeView.getFeedButtonDest()]!!)
-		readView = ReadView(carApp.states[homeView.getEntryListDest()] as RHMIState.ToolbarState)
+		homeView = HomeView(carApp.states[destStateId] as RHMIState, rssService, model)
+		feedView = FeedView(carApp.states[homeView.getFeedButtonDest()]!!, rssService, model)
+		readView = ReadView(carApp.states[homeView.getEntryListDest()] as RHMIState.ToolbarState, model)
 
 		initWidgets()
 		Log.i(TAG, "CarApp running")
@@ -92,6 +94,11 @@ class CarApp(val iDriveConnectionStatus: IDriveConnectionStatus, securityAccess:
 				carApp.actions[actionId]?.asRAAction()?.rhmiActionCallback?.onActionEvent(args)
 				synchronized(carConnection) {
 					carConnection.rhmi_ackActionEvent(handle, actionId, 1, true)
+				}
+			} catch (e: RHMIActionAbort) {
+				// Action handler requested that we don't claim success
+				synchronized(carConnection) {
+					carConnection.rhmi_ackActionEvent(handle, actionId, 1, false)
 				}
 			} catch (e: Exception) {
 				Log.e(TAG, "Exception while calling onActionEvent handler!", e)

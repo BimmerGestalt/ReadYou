@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.res.Configuration
 import android.content.res.Resources
 import me.ash.reader.BuildConfig
+import java.text.DateFormat
 import java.util.*
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
@@ -13,11 +14,16 @@ object L {
 	var loadedResources: Resources? = null
 		private set
 
+	// datetime formatting
+	lateinit var mediumDateFormat: DateFormat
+	lateinit var timeFormat: DateFormat
+
 	// all of the strings used in the car app
 	// these default string values are used in tests, Android resources are used for real
 	val APP_NAME by StringResourceDelegate("News")
 
 	val FEED_LIST by StringResourceDelegate("Feeds")
+	val UNREAD by StringResourceDelegate("Unread")
 
 	fun loadResources(context: Context, locale: Locale? = null) {
 		val thisContext = if (locale == null) { context } else {
@@ -28,6 +34,8 @@ object L {
 		}
 
 		loadedResources = thisContext.resources
+		mediumDateFormat = android.text.format.DateFormat.getMediumDateFormat(context)
+		timeFormat = android.text.format.DateFormat.getTimeFormat(context)
 	}
 }
 

@@ -4,15 +4,21 @@ import android.app.Service
 import android.content.Intent
 import android.os.IBinder
 import android.util.Log
+import dagger.hilt.android.AndroidEntryPoint
 import io.bimmergestalt.idriveconnectkit.android.CarAppAssetResources
 import io.bimmergestalt.idriveconnectkit.android.IDriveConnectionReceiver
 import io.bimmergestalt.idriveconnectkit.android.IDriveConnectionStatus
 import io.bimmergestalt.idriveconnectkit.android.security.SecurityAccess
 import io.bimmergestalt.reader.L
+import me.ash.reader.domain.service.RssService
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class CarAppService: Service() {
 	var thread: CarThread? = null
 	var app: CarApp? = null
+	@Inject
+	lateinit var rssService: RssService
 
 	override fun onCreate() {
 		super.onCreate()
@@ -69,6 +75,7 @@ class CarAppService: Service() {
 					iDriveConnectionStatus,
 					securityAccess,
 					CarAppAssetResources(applicationContext, "news"),
+					rssService
 				)
 			}
 			thread?.start()
