@@ -39,9 +39,8 @@ class HomeView(state: RHMIState, val rssService: RssService, val model: Model): 
 		}
 		entriesList.getAction()?.asRAAction()?.rhmiActionCallback = RHMIActionListCallback { i ->
 			Log.i(TAG, "User clicked entry $i")
-			val article = data.getOrNull(i) ?: throw RHMIActionAbort()
+			data.getOrNull(i) ?: throw RHMIActionAbort()
 			model.articleIndex.value = i
-			model.article.value = article
 		}
 
 		updateButton.getAction()?.asRAAction()?.rhmiActionCallback = RHMIActionButtonCallback {
@@ -67,7 +66,7 @@ class HomeView(state: RHMIState, val rssService: RssService, val model: Model): 
 				is PagingSource.LoadResult.Page -> result.data
 				else -> emptyList()
 			}
-			model.articles = data
+			model.articles.value = data
 			entriesList.getModel()?.value = object: RHMIModel.RaListModel.RHMIListAdapter<ArticleWithFeed>(2, data) {
 				override fun convertRow(index: Int, item: ArticleWithFeed): Array<Any> {
 					val icon = if (item.article.isUnread) "•"
