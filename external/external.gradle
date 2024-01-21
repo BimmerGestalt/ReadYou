@@ -1,15 +1,18 @@
 
 def RHMISources = [
         "BMWClassic": [
-                "news/news.p7b": "news/rhmi/bmw/news.p7b",
-                "news/rhmi/ui_description.xml": "news/rhmi/ui_description.xml",
-                "news/rhmi/bmw/images.zip": "news/rhmi/bmw/images.zip",
-                "news/rhmi/common/images.zip": "news/rhmi/common/images.zip",
-                "news/rhmi/common/texts.zip": "news/rhmi/common/texts.zip",
+                "carapplications/news/news.p7b": "news/rhmi/bmw/news.p7b",
+                "carapplications/news/rhmi/ui_description.xml": "news/rhmi/ui_description.xml",
+                "carapplications/news/rhmi/bmw/images.zip": "news/rhmi/bmw/images.zip",
+                "carapplications/news/rhmi/common/images.zip": "news/rhmi/common/images.zip",
+                "carapplications/news/rhmi/common/texts.zip": "news/rhmi/common/texts.zip",
+                "common_resources/shared/rhmi/common/images.zip": "news/rhmi/common/images_shared.zip",
+                "common_resources/shared/rhmi/common/texts.zip": "news/rhmi/common/texts_shared.zip",
         ],
         "MINIClassic": [
-                "news/news.p7b": "news/rhmi/mini/news.p7b",
-                "news/rhmi/mini/images.zip": "news/rhmi/mini/images.zip",
+                "carapplications/news/news.p7b": "news/rhmi/mini/news.p7b",
+                "carapplications/news/rhmi/mini/images.zip": "news/rhmi/mini/images.zip",
+                "common_resources/shared/rhmi/mini/images.zip": "news/rhmi/mini/images_shared.zip",
         ],
 ]
 
@@ -45,7 +48,7 @@ task extractRHMIResources(type: Copy, dependsOn: confirmRHMIResources) {
         if (!missing.isEmpty() && sourceZip.value != null) {
             RHMISources[sourceZip.key].each { sourceFile ->
                 from({ zipTree(sourceZip.value) }) {
-                    include "assets/carapplications/${sourceFile.key}"
+                    include "assets/${sourceFile.key}"
                     eachFile { it.relativePath = new RelativePath(true, sourceFile.value) }
                 }
             }

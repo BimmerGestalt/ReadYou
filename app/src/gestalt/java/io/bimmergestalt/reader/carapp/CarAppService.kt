@@ -74,7 +74,7 @@ class CarAppService: Service() {
 				app = CarApp(
 					iDriveConnectionStatus,
 					securityAccess,
-					CarAppAssetResources(applicationContext, "news"),
+					CarAppSharedAssetResources(applicationContext, "news"),
 					rssService
 				)
 			}
