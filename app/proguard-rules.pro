@@ -36,3 +36,9 @@
 
 # Provider API
 -keep class me.ash.reader.infrastructure.** { *; }
+
+# Apache Etch and Gestalt
+-keep class io.bimmergestalt.idriveconnectkit.rhmi.* { *; }
+-keep class io.bimmergestalt.idriveconnectkit.android.security.* { *; }
+-keep public class * extends org.apache.etch.bindings.java.transport.FormatFactory
+-keep class io.bimmergestalt.reader.carapp.* { *; }

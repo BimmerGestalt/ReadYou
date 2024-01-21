@@ -75,7 +75,7 @@ android {
     }
     applicationVariants.all { variant ->
         variant.outputs.each { output ->
-            output.outputFileName = "ReadYou-${defaultConfig.versionName}-${gitCommitHash}.apk"
+            output.outputFileName = "ReadYou-${variant.flavorName}-${defaultConfig.versionName}-${gitCommitHash}.apk"
         }
     }
     kotlinOptions {

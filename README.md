@@ -23,7 +23,7 @@
 
 <div align="center">
     <h1>Read You</h1>
-    <p>An Android RSS reader presented in <a target="_blank" href="https://m3.material.io/">Material You</a> style.</p>
+    <p>An Android RSS reader presented in <a target="_blank" href="https://m3.material.io/">Material You</a> style, with BMW/Mini app support.</p>
     <p>English&nbsp;&nbsp;|&nbsp;&nbsp;
     <a target="_blank" href="https://github.com/Ashinch/ReadYou/blob/main/README-de.md">Deutsch</a>&nbsp;&nbsp;|&nbsp;&nbsp;
     <a target="_blank" href="https://github.com/Ashinch/ReadYou/blob/main/README-zh-CN.md">简体中文</a>&nbsp;&nbsp;|&nbsp;&nbsp;
@@ -72,6 +72,8 @@ The following are the progress made so far and the goals to be worked on in the 
 - [ ] Feedly
 - [ ] Feedbin
 - [ ] ...
+
+If an [AAIdrive](https://github.com/BimmerGestalt/AAIdrive)-compatible car is connected, then ReadYou will be added as a News icon to the ConnectedDrive interface in the car.
 
 ## Download
 
