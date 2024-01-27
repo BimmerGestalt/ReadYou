@@ -4,6 +4,7 @@ import io.bimmergestalt.idriveconnectkit.rhmi.RHMIActionButtonCallback
 import io.bimmergestalt.idriveconnectkit.rhmi.RHMIComponent
 import io.bimmergestalt.idriveconnectkit.rhmi.RHMIProperty
 import io.bimmergestalt.idriveconnectkit.rhmi.RHMIState
+import io.bimmergestalt.idriveconnectkit.rhmi.VisibleCallback
 import io.bimmergestalt.reader.Utils
 import io.bimmergestalt.reader.carapp.CarAppSharedAssetResources
 import io.bimmergestalt.reader.carapp.Model
@@ -133,6 +134,12 @@ class ReadoutView(state: RHMIState.ToolbarState, val controller: ReadoutControll
 		globalCoroutineScope.launch {
 			controller.currentLine.collectLatest {
 				curLineLabel.getModel()?.asRaDataModel()?.value = it
+			}
+		}
+
+		state.visibleCallback = VisibleCallback { visible ->
+			if (visible) {
+				controller.play()
 			}
 		}
 	}

@@ -119,8 +119,10 @@ class ReadoutController(val name: String, val speechEvent: RHMIEvent.ActionEvent
 	}
 
 	fun play() {
-		desiredState = ReadoutState.ACTIVE
-		readLine()
+		if (desiredState != ReadoutState.ACTIVE) {
+			desiredState = ReadoutState.ACTIVE
+			readLine()
+		}
 	}
 
 
