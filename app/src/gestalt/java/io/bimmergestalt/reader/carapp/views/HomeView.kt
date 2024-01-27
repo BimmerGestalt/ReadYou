@@ -51,8 +51,18 @@ class HomeView(state: RHMIState, val rssService: RssService, val model: Model): 
 	fun getEntryListDest() = entriesList.getAction()?.asHMIAction()?.target!!
 
 	override suspend fun onFocus() {
+		model.isSyncing.collectLatest { active ->
+			loadingLabel.setVisible(active)
+
+			entriesList.setProperty(RHMIProperty.PropertyId.LABEL_WAITINGANIMATION, true)
+			if (!active) {
+				showFeed()
+			}
+		}
+	}
+
+	suspend fun showFeed() {
 		val account = rssService.get()
-		entriesList.setProperty(RHMIProperty.PropertyId.LABEL_WAITINGANIMATION, true)
 		model.feed.collectLatest { feedSelection ->
 			feedButton.getModel()?.asRaDataModel()?.value = feedSelection.name
 
@@ -68,8 +78,8 @@ class HomeView(state: RHMIState, val rssService: RssService, val model: Model): 
 			entriesList.getModel()?.value = object: RHMIModel.RaListModel.RHMIListAdapter<ArticleWithFeed>(2, data) {
 				override fun convertRow(index: Int, item: ArticleWithFeed): Array<Any> {
 					val icon = if (item.article.isUnread) "•"
-						else if (item.article.isStarred) "★"
-						else ""
+					else if (item.article.isStarred) "★"
+					else ""
 					return arrayOf(icon, item.article.title)
 				}
 			}

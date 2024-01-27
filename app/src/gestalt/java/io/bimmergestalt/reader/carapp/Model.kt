@@ -1,9 +1,14 @@
 package io.bimmergestalt.reader.carapp
 
+import androidx.lifecycle.asFlow
+import androidx.work.WorkInfo
+import androidx.work.WorkManager
 import io.bimmergestalt.reader.L
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import me.ash.reader.domain.model.article.ArticleWithFeed
+import me.ash.reader.domain.service.SyncWorker
 
 data class FeedConfig(val groupId: String?, val feedId: String?,
                       val isStarred: Boolean, val isUnread: Boolean) {
@@ -19,7 +24,11 @@ data class FeedConfig(val groupId: String?, val feedId: String?,
 }
 class FeedSelection(val name: String, val feedConfig: FeedConfig)
 
-class Model {
+class Model(workManager: WorkManager) {
+	val isSyncing = workManager.getWorkInfosByTagLiveData(SyncWorker.WORK_NAME)
+		.asFlow().map { it.any { workInfo ->
+			workInfo.state == WorkInfo.State.RUNNING
+		} }
 	var feed = MutableStateFlow(FeedSelection(L.UNREAD, FeedConfig.UNREAD))
 	var articles = MutableStateFlow(emptyList<ArticleWithFeed>())
 	var articleIndex = MutableStateFlow(-1)

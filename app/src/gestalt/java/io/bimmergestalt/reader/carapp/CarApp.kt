@@ -1,6 +1,7 @@
 package io.bimmergestalt.reader.carapp
 
 import android.util.Log
+import androidx.work.WorkManager
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
 import de.bmw.idrive.BMWRemoting
@@ -25,13 +26,14 @@ import me.ash.reader.domain.service.RssService
 
 const val TAG = "ReaderGestalt"
 class CarApp(val iDriveConnectionStatus: IDriveConnectionStatus, securityAccess: SecurityAccess,
-             val carAppResources: CarAppSharedAssetResources, val rssService: RssService
+             val carAppResources: CarAppSharedAssetResources,
+             val rssService: RssService, workManager: WorkManager
 ) {
 
 	val carConnection: BMWRemotingServer
 	val carApp: RHMIApplication
 	val readoutController: ReadoutController
-	val model: Model = Model()
+	val model: Model = Model(workManager)
 	val homeView: HomeView
 	val feedView: FeedView
 	val readView: ReadView

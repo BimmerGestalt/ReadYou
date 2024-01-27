@@ -4,6 +4,7 @@ import android.app.Service
 import android.content.Intent
 import android.os.IBinder
 import android.util.Log
+import androidx.work.WorkManager
 import dagger.hilt.android.AndroidEntryPoint
 import io.bimmergestalt.idriveconnectkit.android.CarAppAssetResources
 import io.bimmergestalt.idriveconnectkit.android.IDriveConnectionReceiver
@@ -19,6 +20,8 @@ class CarAppService: Service() {
 	var app: CarApp? = null
 	@Inject
 	lateinit var rssService: RssService
+	@Inject
+	lateinit var workManager: WorkManager
 
 	override fun onCreate() {
 		super.onCreate()
@@ -75,7 +78,7 @@ class CarAppService: Service() {
 					iDriveConnectionStatus,
 					securityAccess,
 					CarAppSharedAssetResources(applicationContext, "news"),
-					rssService
+					rssService, workManager
 				)
 			}
 			thread?.start()
