@@ -1,10 +1,10 @@
 package io.bimmergestalt.reader.carapp.views
 
-import androidx.core.text.HtmlCompat
 import io.bimmergestalt.idriveconnectkit.rhmi.RHMIActionButtonCallback
 import io.bimmergestalt.idriveconnectkit.rhmi.RHMIComponent
 import io.bimmergestalt.idriveconnectkit.rhmi.RHMIProperty
 import io.bimmergestalt.idriveconnectkit.rhmi.RHMIState
+import io.bimmergestalt.reader.Utils
 import io.bimmergestalt.reader.carapp.CarAppSharedAssetResources
 import io.bimmergestalt.reader.carapp.Model
 import io.bimmergestalt.reader.carapp.ReadoutController
@@ -44,14 +44,8 @@ class ReadoutView(state: RHMIState.ToolbarState, val controller: ReadoutControll
 		globalCoroutineScope.launch {
 			model.article.collectLatest { article ->   // new article was opened in ReadView
 				controller.stop()
-				val htmlContents = (article?.article?.fullContent ?: "")
-					.replace(Regex("<h1.*?<.*?>"), "")
-				val contents = HtmlCompat.fromHtml(htmlContents,
-					HtmlCompat.FROM_HTML_MODE_COMPACT
-				).toString()
-					.replace(Regex("([.!])\\p{Blank}*?\n?"), "$1\n")  // split sentences into lines
-					.lines()
-					.map { it.trim() }
+				val htmlContents = Utils.parseHtml(article?.article?.fullContent ?: "")
+				val contents = Utils.formatForReadout(htmlContents)
 				controller.loadLines(contents)
 			}
 		}

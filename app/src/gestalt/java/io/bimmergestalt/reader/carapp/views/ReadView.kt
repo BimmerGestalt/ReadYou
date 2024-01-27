@@ -1,7 +1,5 @@
 package io.bimmergestalt.reader.carapp.views
 
-import android.util.Log
-import androidx.core.text.HtmlCompat
 import io.bimmergestalt.idriveconnectkit.rhmi.RHMIActionButtonCallback
 import io.bimmergestalt.idriveconnectkit.rhmi.RHMIComponent
 import io.bimmergestalt.idriveconnectkit.rhmi.RHMIModel
@@ -9,6 +7,7 @@ import io.bimmergestalt.idriveconnectkit.rhmi.RHMIProperty
 import io.bimmergestalt.idriveconnectkit.rhmi.RHMIState
 import io.bimmergestalt.idriveconnectkit.rhmi.RequestDataCallback
 import io.bimmergestalt.reader.L
+import io.bimmergestalt.reader.Utils
 import io.bimmergestalt.reader.carapp.Model
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -63,12 +62,7 @@ class ReadView(state: RHMIState.ToolbarState, val model: Model): OnFocusedView(s
 			}
 			state.getTextModel()?.asRaDataModel()?.value = article.feed.name
 
-			val htmlContents = (article.article.fullContent ?: "")
-				.replace(Regex("<h1.*?<.*?>"), "")
-			val contents = HtmlCompat.fromHtml(htmlContents,
-				HtmlCompat.FROM_HTML_MODE_COMPACT
-			).toString()
-				.lines()
+			val contents = Utils.parseHtml(article.article.fullContent ?: "").lines()
 			listModel = RHMIModel.RaListModel.RHMIListConcrete(1).also {
 				it.addRow(arrayOf(article.article.title))
 				it.addRow(arrayOf(L.mediumDateFormat.format(article.article.date) + " " + L.timeFormat.format(article.article.date)))
