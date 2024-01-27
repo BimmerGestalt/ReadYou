@@ -1,6 +1,5 @@
 package me.ash.reader.ui.page.home.feeds
 
-import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.clickable
@@ -59,7 +58,6 @@ fun FeedsPage(
 ) {
     var accountTabVisible by remember { mutableStateOf(false) }
 
-
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val topBarTonalElevation = LocalFeedsTopBarTonalElevation.current
@@ -114,7 +112,7 @@ fun FeedsPage(
         feedsViewModel.fetchAccount()
     }
 
-    LaunchedEffect(filterUiState) {
+    LaunchedEffect(filterUiState, isSyncing) {
         snapshotFlow { filterUiState }.collect {
             feedsViewModel.pullFeeds(it)
         }
@@ -149,7 +147,7 @@ fun FeedsPage(
             ) {
                 if (!isSyncing) homeViewModel.sync()
             }
-            if (subscribeViewModel.rssService.get().subscribe) {
+            if (subscribeViewModel.rssService.get().addSubscription) {
                 FeedbackIconButton(
                     imageVector = Icons.Rounded.Add,
                     contentDescription = stringResource(R.string.subscribe),
@@ -165,20 +163,9 @@ fun FeedsPage(
             ) {
                 item {
                     DisplayText(
-                        modifier = Modifier
-                            .clickable {
-                                accountTabVisible = true
-                            },
-                        // .pointerInput(Unit) {
-                        //     detectTapGestures(
-                        //         onPress = {
-                        //             accountTabRemember = true
-                        //         },
-                        //         onLongPress = {
-                        //             accountTabRemember = true
-                        //         }
-                        //     )
-                        // },
+                        modifier = Modifier.clickable {
+                            accountTabVisible = true
+                        },
                         text = feedsUiState.account?.name ?: "",
                         desc = if (isSyncing) stringResource(R.string.syncing) else "",
                     )
@@ -229,7 +216,7 @@ fun FeedsPage(
                                 group = groupWithFeed.group,
                                 alpha = groupAlpha,
                                 indicatorAlpha = groupIndicatorAlpha,
-                                isEnded = { index == groupWithFeedList.lastIndex },
+                                roundedBottomCorner = { index == groupWithFeedList.lastIndex || groupWithFeed.group.feeds == 0 },
                                 onExpanded = {
                                     groupsVisible[groupWithFeed.group.id] = groupsVisible.getOrPut(
                                         groupWithFeed.group.id,

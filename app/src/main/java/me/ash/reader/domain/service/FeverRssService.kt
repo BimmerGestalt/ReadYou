@@ -1,16 +1,17 @@
 package me.ash.reader.domain.service
 
 import android.content.Context
-import android.text.Html
 import android.util.Log
 import androidx.work.CoroutineWorker
 import androidx.work.ListenableWorker
 import androidx.work.WorkManager
+import com.rometools.rome.feed.synd.SyndFeed
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.withContext
 import me.ash.reader.R
+import me.ash.reader.domain.model.account.Account
 import me.ash.reader.domain.model.account.security.FeverSecurityKey
 import me.ash.reader.domain.model.article.Article
 import me.ash.reader.domain.model.article.ArticleMeta
@@ -27,10 +28,7 @@ import me.ash.reader.infrastructure.di.MainDispatcher
 import me.ash.reader.infrastructure.rss.RssHelper
 import me.ash.reader.infrastructure.rss.provider.fever.FeverAPI
 import me.ash.reader.infrastructure.rss.provider.fever.FeverDTO
-import me.ash.reader.ui.ext.currentAccountId
-import me.ash.reader.ui.ext.dollarLast
-import me.ash.reader.ui.ext.showToast
-import me.ash.reader.ui.ext.spacerDollar
+import me.ash.reader.ui.ext.*
 import net.dankito.readability4j.extended.Readability4JExtended
 import java.util.*
 import javax.inject.Inject
@@ -56,10 +54,10 @@ class FeverRssService @Inject constructor(
     feedDao, workManager, rssHelper, notificationHelper, ioDispatcher, defaultDispatcher
 ) {
 
-    override val subscribe: Boolean = false
-    override val move: Boolean = false
-    override val delete: Boolean = false
-    override val update: Boolean = false
+    override val addSubscription: Boolean = false
+    override val moveSubscription: Boolean = false
+    override val deleteSubscription: Boolean = false
+    override val updateSubscription: Boolean = false
 
     private suspend fun getFeverAPI() =
         FeverSecurityKey(accountDao.queryById(context.currentAccountId)!!.securityKey).run {
@@ -72,13 +70,45 @@ class FeverRssService @Inject constructor(
             )
         }
 
-    override suspend fun validCredentials(): Boolean = getFeverAPI().validCredentials() > 0
+    override suspend fun validCredentials(account: Account): Boolean =
+        getFeverAPI().validCredentials() > 0
 
-    override suspend fun subscribe(feed: Feed, articles: List<Article>) {
+    override suspend fun clearAuthorization() {
+        FeverAPI.clearInstance()
+    }
+
+    override suspend fun subscribe(
+        feedLink: String, searchedFeed: SyndFeed, groupId: String,
+        isNotification: Boolean, isFullContent: Boolean,
+    ) {
         throw Exception("Unsupported")
     }
 
-    override suspend fun addGroup(name: String): String {
+    override suspend fun addGroup(destFeed: Feed?, newGroupName: String): String {
+        throw Exception("Unsupported")
+    }
+
+    override suspend fun renameGroup(group: Group) {
+        throw Exception("Unsupported")
+    }
+
+    override suspend fun renameFeed(feed: Feed) {
+        throw Exception("Unsupported")
+    }
+
+    override suspend fun deleteGroup(group: Group) {
+        throw Exception("Unsupported")
+    }
+
+    override suspend fun deleteFeed(feed: Feed) {
+        throw Exception("Unsupported")
+    }
+
+    override suspend fun moveFeed(originGroupId: String, feed: Feed) {
+        throw Exception("Unsupported")
+    }
+
+    override suspend fun changeFeedUrl(feed: Feed) {
         throw Exception("Unsupported")
     }
 
@@ -91,8 +121,8 @@ class FeverRssService @Inject constructor(
      * used as the starting mark for the next pull until the number of articles
      * obtained is 0 or their quantity exceeds 250, at which point the pulling process stops.
      *
-     * 1. Fetch the Fever groups
-     * 2. Fetch the Fever feeds (including favicons)
+     * 1. Fetch the Fever groups (may need to remove orphaned groups)
+     * 2. Fetch the Fever feeds (including favicons, may need to remove orphaned feeds)
      * 3. Fetch the Fever articles
      * 4. Synchronize read/unread and starred/un-starred items
      */
@@ -106,15 +136,20 @@ class FeverRssService @Inject constructor(
             val feverAPI = getFeverAPI()
 
             // 1. Fetch the Fever groups
-            groupDao.insertOrUpdate(
-                feverAPI.getGroups().groups?.map {
-                    Group(
-                        id = accountId.spacerDollar(it.id!!),
-                        name = it.title ?: context.getString(R.string.empty),
-                        accountId = accountId,
-                    )
-                } ?: emptyList()
-            )
+            val groups = feverAPI.getGroups().groups?.map {
+                Group(
+                    id = accountId.spacerDollar(it.id!!),
+                    name = it.title ?: context.getString(R.string.empty),
+                    accountId = accountId,
+                )
+            } ?: emptyList()
+            groupDao.insertOrUpdate(groups)
+            val groupIds = groups.map { it.id }
+            groupDao.queryAll(accountId).forEach {
+                if (!groupIds.contains(it.id)) {
+                    super.deleteGroup(it)
+                }
+            }
 
             // 2. Fetch the Fever feeds
             val feedsBody = feverAPI.getFeeds()
@@ -126,6 +161,11 @@ class FeverRssService @Inject constructor(
                     }
                 }
             }
+            feedDao.queryAll(accountId).forEach {
+                if (!feedsGroupsMap.contains(it.id.dollarLast())) {
+                    super.deleteFeed(it)
+                }
+            }
 
             // Fetch the Fever favicons
             val faviconsById = feverAPI.getFavicons().favicons?.associateBy { it.id } ?: emptyMap()
@@ -133,7 +173,7 @@ class FeverRssService @Inject constructor(
                 feedsBody.feeds?.map {
                     Feed(
                         id = accountId.spacerDollar(it.id!!),
-                        name = it.title ?: context.getString(R.string.empty),
+                        name = it.title.decodeHTML() ?: context.getString(R.string.empty),
                         url = it.url!!,
                         groupId = accountId.spacerDollar(feedsGroupsMap[it.id.toString()]!!),
                         accountId = accountId,
@@ -141,6 +181,13 @@ class FeverRssService @Inject constructor(
                     )
                 } ?: emptyList()
             )
+
+            // Handle empty icon for feeds
+            val noIconFeeds = feedDao.queryNoIcon(accountId)
+            noIconFeeds.forEach {
+                it.icon = rssHelper.queryRssIconLink(it.url)
+            }
+            feedDao.update(*noIconFeeds.toTypedArray())
 
             // 3. Fetch the Fever articles (up to unlimited counts)
             var sinceId = account.lastArticleId?.dollarLast() ?: ""
@@ -151,7 +198,7 @@ class FeverRssService @Inject constructor(
                         Article(
                             id = accountId.spacerDollar(it.id!!),
                             date = it.created_on_time?.run { Date(this * 1000) } ?: Date(),
-                            title = Html.fromHtml(it.title ?: context.getString(R.string.empty)).toString(),
+                            title = it.title.decodeHTML() ?: context.getString(R.string.empty),
                             author = it.author,
                             rawDescription = it.html ?: "",
                             shortDescription = (Readability4JExtended("", it.html ?: "")
@@ -181,7 +228,7 @@ class FeverRssService @Inject constructor(
             // 4. Synchronize read/unread and starred/un-starred
             val unreadArticleIds = feverAPI.getUnreadItems().unread_item_ids?.split(",")
             val starredArticleIds = feverAPI.getSavedItems().saved_item_ids?.split(",")
-            val articleMeta = articleDao.queryArticleMetadataAll(accountId)
+            val articleMeta = articleDao.queryMetadataAll(accountId)
             for (meta: ArticleMeta in articleMeta) {
                 val articleId = meta.id.dollarLast()
                 val shouldBeUnread = unreadArticleIds?.contains(articleId)

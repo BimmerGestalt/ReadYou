@@ -1,9 +1,6 @@
 package me.ash.reader.ui.page.settings.accounts.addition
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -56,6 +53,7 @@ fun AddLocalAccountDialog(
         },
         icon = {
             Icon(
+                modifier = Modifier.size(24.dp),
                 imageVector = Icons.Rounded.RssFeed,
                 contentDescription = stringResource(R.string.local),
             )
@@ -89,13 +87,13 @@ fun AddLocalAccountDialog(
                     accountViewModel.addAccount(Account(
                         type = AccountType.Local,
                         name = name,
-                    )) {
-                        if (it == null) {
-                            context.showToast("Not valid credentials")
+                    )) { account, exception ->
+                        if (account == null) {
+                            context.showToast(exception?.message ?: "Not valid credentials")
                         } else {
                             viewModel.hideAddLocalAccountDialog()
                             navController.popBackStack()
-                            navController.navigate("${RouteName.ACCOUNT_DETAILS}/${it.id}") {
+                            navController.navigate("${RouteName.ACCOUNT_DETAILS}/${account.id}") {
                                 launchSingleTop = true
                             }
                         }

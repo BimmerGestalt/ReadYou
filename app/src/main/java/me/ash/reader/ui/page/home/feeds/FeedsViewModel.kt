@@ -43,8 +43,9 @@ class FeedsViewModel @Inject constructor(
         val isStarred = filterState.filter.isStarred()
         val isUnread = filterState.filter.isUnread()
         _feedsUiState.update {
+            val important = rssService.get().pullImportant(isStarred, isUnread)
             it.copy(
-                importantSum = rssService.get().pullImportant(isStarred, isUnread)
+                importantSum = important
                     .mapLatest {
                         (it["sum"] ?: 0).run {
                             androidStringsHelper.getQuantityString(
@@ -59,7 +60,7 @@ class FeedsViewModel @Inject constructor(
                         }
                     }.flowOn(defaultDispatcher),
                 groupWithFeedList = combine(
-                    rssService.get().pullImportant(isStarred, isUnread),
+                    important,
                     rssService.get().pullFeeds()
                 ) { importantMap, groupWithFeedList ->
                     val groupIterator = groupWithFeedList.iterator()
@@ -75,6 +76,7 @@ class FeedsViewModel @Inject constructor(
                         while (feedIterator.hasNext()) {
                             val feed = feedIterator.next()
                             val feedImportant = importantMap[feed.id] ?: 0
+                            groupWithFeed.group.feeds++
                             if ((isStarred || isUnread) && feedImportant == 0) {
                                 feedIterator.remove()
                                 continue

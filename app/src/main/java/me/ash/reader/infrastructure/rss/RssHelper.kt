@@ -1,10 +1,11 @@
 package me.ash.reader.infrastructure.rss
 
 import android.content.Context
-import android.text.Html
 import android.util.Log
 import com.google.gson.Gson
 import com.rometools.rome.feed.synd.SyndEntry
+import com.rometools.rome.feed.synd.SyndFeed
+import com.rometools.rome.feed.synd.SyndImageImpl
 import com.rometools.rome.io.SyndFeedInput
 import com.rometools.rome.io.XmlReader
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -12,10 +13,10 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import me.ash.reader.domain.model.article.Article
 import me.ash.reader.domain.model.feed.Feed
-import me.ash.reader.domain.model.feed.FeedWithArticle
 import me.ash.reader.domain.repository.FeedDao
 import me.ash.reader.infrastructure.di.IODispatcher
 import me.ash.reader.ui.ext.currentAccountId
+import me.ash.reader.ui.ext.decodeHTML
 import me.ash.reader.ui.ext.spacerDollar
 import net.dankito.readability4j.extended.Readability4JExtended
 import okhttp3.OkHttpClient
@@ -37,19 +38,13 @@ class RssHelper @Inject constructor(
 ) {
 
     @Throws(Exception::class)
-    suspend fun searchFeed(feedLink: String): FeedWithArticle {
+    suspend fun searchFeed(feedLink: String): SyndFeed {
         return withContext(ioDispatcher) {
-            val accountId = context.currentAccountId
-            val syndFeed = SyndFeedInput().build(XmlReader(inputStream(okHttpClient, feedLink)))
-            val feed = Feed(
-                id = accountId.spacerDollar(UUID.randomUUID().toString()),
-                name = syndFeed.title!!,
-                url = feedLink,
-                groupId = "",
-                accountId = accountId,
-            )
-            val list = syndFeed.entries.map { article(feed, context.currentAccountId, it) }
-            FeedWithArticle(feed, list)
+            SyndFeedInput().build(XmlReader(inputStream(okHttpClient, feedLink))).also {
+                it.icon = SyndImageImpl()
+                it.icon.link = queryRssIconLink(feedLink)
+                it.icon.url = it.icon.link
+            }
         }
     }
 
@@ -84,7 +79,7 @@ class RssHelper @Inject constructor(
                     .entries
                     .asSequence()
                     .takeWhile { latestLink == null || latestLink != it.link }
-                    .map { article(feed, accountId, it) }
+                    .map { buildArticleFromSyndEntry(feed, accountId, it) }
                     .toList()
             }
         } catch (e: Exception) {
@@ -93,7 +88,7 @@ class RssHelper @Inject constructor(
             listOf()
         }
 
-    private fun article(
+    fun buildArticleFromSyndEntry(
         feed: Feed,
         accountId: Int,
         syndEntry: SyndEntry,
@@ -117,7 +112,7 @@ class RssHelper @Inject constructor(
             accountId = accountId,
             feedId = feed.id,
             date = syndEntry.publishedDate ?: syndEntry.updatedDate ?: Date(),
-            title = Html.fromHtml(syndEntry.title.toString()).toString(),
+            title = syndEntry.title.decodeHTML() ?: feed.name,
             author = syndEntry.author,
             rawDescription = (content ?: desc) ?: "",
             shortDescription = (Readability4JExtended("", desc ?: content ?: "")
@@ -140,22 +135,19 @@ class RssHelper @Inject constructor(
         return regex.find(rawDescription)?.groupValues?.get(2)?.takeIf { !it.startsWith("data:") }
     }
 
-    @Throws(Exception::class)
-    suspend fun queryRssIcon(
-        feedDao: FeedDao,
-        feed: Feed,
-    ) {
-        withContext(ioDispatcher) {
-            val request = response(okHttpClient, "https://besticon-demo.herokuapp.com/allicons.json?url=${feed.url}")
+    suspend fun queryRssIconLink(feedLink: String): String? {
+        return try {
+            val request = response(okHttpClient, "https://besticon-demo.herokuapp.com/allicons.json?url=${feedLink}")
             val content = request.body.string()
             val favicon = Gson().fromJson(content, Favicon::class.java)
-            favicon?.icons?.first { it.width != null && it.width >= 20 }?.url?.let {
-                saveRssIcon(feedDao, feed, it)
-            }?: return@withContext
+            favicon?.icons?.first { it.width != null && it.width >= 20 }?.url
+        } catch (e: Exception) {
+            Log.i("RLog", "queryRssIcon is failed: ${e.message}")
+            null
         }
     }
 
-    private suspend fun saveRssIcon(feedDao: FeedDao, feed: Feed, iconLink: String) {
+    suspend fun saveRssIcon(feedDao: FeedDao, feed: Feed, iconLink: String) {
         feedDao.update(
             feed.apply {
                 icon = iconLink

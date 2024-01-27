@@ -5,7 +5,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.ash.reader.domain.model.account.Account
@@ -43,13 +48,15 @@ class AccountViewModel @Inject constructor(
     fun update(accountId: Int, block: Account.() -> Unit) {
         viewModelScope.launch(ioDispatcher) {
             accountService.update(accountId, block)
+            rssService.get(accountId).clearAuthorization()
         }
     }
 
     fun exportAsOPML(accountId: Int, callback: (String) -> Unit = {}) {
         viewModelScope.launch(defaultDispatcher) {
             try {
-                callback(opmlService.saveToString(accountId))
+                callback(opmlService.saveToString(accountId,
+                    _accountUiState.value.exportOPMLMode == ExportOPMLMode.ATTACH_INFO))
             } catch (e: Exception) {
                 Log.e("FeedsViewModel", "exportAsOpml: ", e)
             }
@@ -90,13 +97,13 @@ class AccountViewModel @Inject constructor(
         }
     }
 
-    fun addAccount(account: Account, callback: (Account?) -> Unit = {}) {
+    fun addAccount(account: Account, callback: (account: Account?, exception: Exception?) -> Unit) {
         viewModelScope.launch(ioDispatcher) {
             val addAccount = accountService.addAccount(account)
             try {
-                if (rssService.get(addAccount.type.id).validCredentials()) {
+                if (rssService.get(addAccount.type.id).validCredentials(account)) {
                     withContext(mainDispatcher) {
-                        callback(addAccount)
+                        callback(addAccount, null)
                     }
                 } else {
                     throw Exception("Unauthorized")
@@ -104,7 +111,7 @@ class AccountViewModel @Inject constructor(
             } catch (e: Exception) {
                 accountService.delete(account.id!!)
                 withContext(mainDispatcher) {
-                    callback(null)
+                    callback(null, e)
                 }
             }
         }
@@ -118,10 +125,26 @@ class AccountViewModel @Inject constructor(
             }
         }
     }
+
+    fun changeExportOPMLMode(mode: ExportOPMLMode) {
+        viewModelScope.launch {
+            _accountUiState.update {
+                it.copy(
+                    exportOPMLMode = mode
+                )
+            }
+        }
+    }
 }
 
 data class AccountUiState(
     val selectedAccount: Flow<Account?> = emptyFlow(),
     val deleteDialogVisible: Boolean = false,
     val clearDialogVisible: Boolean = false,
+    val exportOPMLMode: ExportOPMLMode = ExportOPMLMode.ATTACH_INFO,
 )
+
+sealed class ExportOPMLMode {
+    object ATTACH_INFO : ExportOPMLMode()
+    object NO_ATTACH : ExportOPMLMode()
+}

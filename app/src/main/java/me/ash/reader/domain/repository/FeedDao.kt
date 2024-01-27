@@ -1,5 +1,6 @@
 package me.ash.reader.domain.repository
 
+import android.util.Log
 import androidx.room.*
 import me.ash.reader.domain.model.feed.Feed
 
@@ -47,6 +48,15 @@ interface FeedDao {
 
     @Query(
         """
+        SELECT * FROM feed
+        WHERE groupId = :groupId
+        AND accountId = :accountId
+        """
+    )
+    suspend fun queryByGroupId(accountId: Int, groupId: String): List<Feed>
+
+    @Query(
+        """
         DELETE FROM feed
         WHERE groupId = :groupId
         AND accountId = :accountId
@@ -82,7 +92,16 @@ interface FeedDao {
         """
         SELECT * FROM feed
         WHERE accountId = :accountId
-        and url = :url
+        AND (icon IS NUll OR icon = '')
+        """
+    )
+    suspend fun queryNoIcon(accountId: Int): List<Feed>
+
+    @Query(
+        """
+        SELECT * FROM feed
+        WHERE accountId = :accountId
+        AND url = :url
         """
     )
     suspend fun queryByLink(accountId: Int, url: String): List<Feed>
@@ -105,6 +124,9 @@ interface FeedDao {
             if (feed == null) {
                 insert(it)
             } else {
+                Log.i("RLog", "insertOrUpdate it: $it")
+                Log.i("RLog", "insertOrUpdate feed: $feed")
+                if (it.icon.isNullOrEmpty()) it.icon = feed.icon
                 // TODO: Consider migrating the fields to be nullable.
                 it.isNotification = feed.isNotification
                 it.isFullContent = feed.isFullContent
