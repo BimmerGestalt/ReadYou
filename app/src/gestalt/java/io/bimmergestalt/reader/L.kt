@@ -20,10 +20,9 @@ object L {
 
 	// all of the strings used in the car app
 	// these default string values are used in tests, Android resources are used for real
-	val APP_NAME by StringResourceDelegate("News")
-
-	val FEED_LIST by StringResourceDelegate("Feeds")
+	val FEEDS by StringResourceDelegate("Feeds")
 	val UNREAD by StringResourceDelegate("Unread")
+	val STARRED by StringResourceDelegate("Starred")
 
 	fun loadResources(context: Context, locale: Locale? = null) {
 		val thisContext = if (locale == null) { context } else {
@@ -48,14 +47,14 @@ class StringResourceDelegate(val default: String): ReadOnlyProperty<L, String> {
 		return if (property.name.matches(pluralMatcher)) {
 			val nameMatch = pluralMatcher.matchEntire(property.name)
 				?: throw AssertionError("Could not parse L name ${property.name}")
-			val id = resources.getIdentifier(nameMatch.groupValues[1], "plurals", BuildConfig.APPLICATION_ID)
+			val id = resources.getIdentifier(nameMatch.groupValues[1].lowercase(), "plurals", BuildConfig.APPLICATION_ID)
 			if (id == 0) {
 				throw AssertionError("Could not find Resource value for string ${property.name}")
 			}
 			val quantity = nameMatch.groupValues[2].toInt()
 			resources.getQuantityString(id, quantity, quantity)
 		} else {
-			val id = resources.getIdentifier(property.name, "string", BuildConfig.APPLICATION_ID)
+			val id = resources.getIdentifier(property.name.lowercase(), "string", BuildConfig.APPLICATION_ID)
 			if (id == 0) {
 				throw AssertionError("Could not find Resource value for string ${property.name}")
 			}

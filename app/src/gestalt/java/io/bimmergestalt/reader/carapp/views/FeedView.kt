@@ -5,6 +5,7 @@ import io.bimmergestalt.idriveconnectkit.rhmi.RHMIComponent
 import io.bimmergestalt.idriveconnectkit.rhmi.RHMIModel
 import io.bimmergestalt.idriveconnectkit.rhmi.RHMIProperty
 import io.bimmergestalt.idriveconnectkit.rhmi.RHMIState
+import io.bimmergestalt.reader.L
 import io.bimmergestalt.reader.carapp.FeedConfig
 import io.bimmergestalt.reader.carapp.FeedSelection
 import io.bimmergestalt.reader.carapp.Model
@@ -19,7 +20,7 @@ class FeedView(state: RHMIState, val rssService: RssService, val model: Model): 
 	fun initWidgets() {
 		feedList.setProperty(RHMIProperty.PropertyId.LIST_COLUMNWIDTH, "32,*")
 		feedList.getModel()?.value = RHMIModel.RaListModel.RHMIListConcrete(2).apply {
-			addRow(arrayOf("", "Unread"))
+			addRow(arrayOf("", L.UNREAD))
 		}
 		feedList.getAction()?.asRAAction()?.rhmiActionCallback = RHMIActionListCallback { i ->
 			val option = feedOptions.getOrNull(i) ?: throw RHMIActionAbort()
@@ -43,12 +44,12 @@ class FeedView(state: RHMIState, val rssService: RssService, val model: Model): 
 				.sortedBy { it.name }
 
 			val feedOptions = ArrayList<FeedSelection>(groups.size + feeds.size + 3)
-			feedOptions.add(FeedSelection("Unread", FeedConfig.UNREAD))
-			feedOptions.add(FeedSelection("Starred", FeedConfig.STARRED))
+			feedOptions.add(FeedSelection(L.UNREAD, FeedConfig.UNREAD))
+			feedOptions.add(FeedSelection(L.STARRED, FeedConfig.STARRED))
 			feedOptions.addAll(groups.map {
 				FeedSelection(it.name, FeedConfig.GROUP(it.id))
 			})
-			feedOptions.add(FeedSelection("Feeds", FeedConfig.PLACEHOLDER))
+			feedOptions.add(FeedSelection(L.FEEDS, FeedConfig.PLACEHOLDER))
 			feedOptions.addAll(feeds.map {
 				// TODO parse the url from it.icon like FeedIcon, which might be a base64 data
 				FeedSelection(it.name, FeedConfig.FEED(it.id))

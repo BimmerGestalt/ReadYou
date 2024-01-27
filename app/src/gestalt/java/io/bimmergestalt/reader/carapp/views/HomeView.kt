@@ -3,12 +3,12 @@ package io.bimmergestalt.reader.carapp.views
 import android.util.Log
 import androidx.paging.PagingSource
 import io.bimmergestalt.idriveconnectkit.rhmi.RHMIActionButtonCallback
-import io.bimmergestalt.idriveconnectkit.rhmi.RHMIActionCallback
 import io.bimmergestalt.idriveconnectkit.rhmi.RHMIActionListCallback
 import io.bimmergestalt.idriveconnectkit.rhmi.RHMIComponent
 import io.bimmergestalt.idriveconnectkit.rhmi.RHMIModel
 import io.bimmergestalt.idriveconnectkit.rhmi.RHMIProperty
 import io.bimmergestalt.idriveconnectkit.rhmi.RHMIState
+import io.bimmergestalt.reader.L
 import io.bimmergestalt.reader.carapp.Model
 import io.bimmergestalt.reader.carapp.RHMIActionAbort
 import io.bimmergestalt.reader.carapp.TAG
@@ -30,15 +30,13 @@ class HomeView(state: RHMIState, val rssService: RssService, val model: Model): 
 	private var data = emptyList<ArticleWithFeed>()
 
 	fun initWidgets() {
-		feedButton.getModel()?.asRaDataModel()?.value = "Unread"
+		feedButton.getModel()?.asRaDataModel()?.value = L.UNREAD
 		feedButton.setProperty(RHMIProperty.PropertyId.VISIBLE, true)
 
 		entriesList.setProperty(RHMIProperty.PropertyId.LIST_COLUMNWIDTH, "16,*")
-		entriesList.getModel()?.value = RHMIModel.RaListModel.RHMIListConcrete(2).apply {
-			addRow(arrayOf("•", "Title text\nFeed Name"))
-		}
+		entriesList.getModel()?.value = RHMIModel.RaListModel.RHMIListConcrete(2)
 		entriesList.getAction()?.asRAAction()?.rhmiActionCallback = RHMIActionListCallback { i ->
-			Log.i(TAG, "User clicked entry $i")
+//			Log.i(TAG, "User clicked entry $i")
 			data.getOrNull(i) ?: throw RHMIActionAbort()
 			model.articleIndex.value = i
 		}

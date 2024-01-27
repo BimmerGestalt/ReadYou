@@ -1,5 +1,6 @@
 package io.bimmergestalt.reader.carapp
 
+import io.bimmergestalt.reader.L
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import me.ash.reader.domain.model.article.ArticleWithFeed
@@ -19,7 +20,7 @@ data class FeedConfig(val groupId: String?, val feedId: String?,
 class FeedSelection(val name: String, val feedConfig: FeedConfig)
 
 class Model {
-	var feed = MutableStateFlow(FeedSelection("Unread", FeedConfig.UNREAD))
+	var feed = MutableStateFlow(FeedSelection(L.UNREAD, FeedConfig.UNREAD))
 	var articles = MutableStateFlow(emptyList<ArticleWithFeed>())
 	var articleIndex = MutableStateFlow(-1)
 	val article = articles.combine(articleIndex) { articles, index ->
