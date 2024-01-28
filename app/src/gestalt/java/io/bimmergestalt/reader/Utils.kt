@@ -1,6 +1,9 @@
 package io.bimmergestalt.reader
 
 import androidx.core.text.HtmlCompat
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 
 object Utils {
 	fun parseHtml(article: String): String {
@@ -19,5 +22,14 @@ object Utils {
 			.lines()
 			.map { it.trim() }
 			.filter { it.isNotBlank() }
+	}
+
+	// https://stackoverflow.com/a/74207113/169035
+	val <A> Iterable<A>.par get() = ParallelizedIterable(this)
+	@JvmInline
+	value class ParallelizedIterable<A>(val iter: Iterable<A>) {
+		suspend fun <B> map(f: suspend (A) -> B): List<B> = coroutineScope {
+			iter.map { async { f(it) } }.awaitAll()
+		}
 	}
 }

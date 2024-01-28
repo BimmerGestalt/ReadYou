@@ -10,6 +10,7 @@ import io.bimmergestalt.idriveconnectkit.android.CarAppAssetResources
 import io.bimmergestalt.idriveconnectkit.android.IDriveConnectionReceiver
 import io.bimmergestalt.idriveconnectkit.android.IDriveConnectionStatus
 import io.bimmergestalt.idriveconnectkit.android.security.SecurityAccess
+import io.bimmergestalt.reader.GraphicsUtils
 import io.bimmergestalt.reader.L
 import me.ash.reader.domain.service.RssService
 import javax.inject.Inject
@@ -78,7 +79,7 @@ class CarAppService: Service() {
 					iDriveConnectionStatus,
 					securityAccess,
 					CarAppSharedAssetResources(applicationContext, "news"),
-					rssService, workManager
+					rssService, workManager, GraphicsUtils(applicationContext)
 				)
 			}
 			thread?.start()

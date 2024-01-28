@@ -18,6 +18,7 @@ import io.bimmergestalt.idriveconnectkit.rhmi.RHMIApplicationIdempotent
 import io.bimmergestalt.idriveconnectkit.rhmi.RHMIApplicationSynchronized
 import io.bimmergestalt.idriveconnectkit.rhmi.RHMIComponent
 import io.bimmergestalt.idriveconnectkit.rhmi.RHMIState
+import io.bimmergestalt.reader.GraphicsUtils
 import io.bimmergestalt.reader.carapp.views.FeedView
 import io.bimmergestalt.reader.carapp.views.HomeView
 import io.bimmergestalt.reader.carapp.views.ReadView
@@ -27,7 +28,7 @@ import me.ash.reader.domain.service.RssService
 const val TAG = "ReaderGestalt"
 class CarApp(val iDriveConnectionStatus: IDriveConnectionStatus, securityAccess: SecurityAccess,
              val carAppResources: CarAppSharedAssetResources,
-             val rssService: RssService, workManager: WorkManager
+             val rssService: RssService, workManager: WorkManager, graphicsUtils: GraphicsUtils
 ) {
 
 	val carConnection: BMWRemotingServer
@@ -52,7 +53,7 @@ class CarApp(val iDriveConnectionStatus: IDriveConnectionStatus, securityAccess:
 		readoutController = ReadoutController.build(carApp, "News")
 		val destStateId = carApp.components.values.filterIsInstance<RHMIComponent.EntryButton>().first().getAction()?.asHMIAction()?.target!!
 		homeView = HomeView(carApp.states[destStateId] as RHMIState, rssService, model)
-		feedView = FeedView(carApp.states[homeView.getFeedButtonDest()]!!, rssService, model)
+		feedView = FeedView(carApp.states[homeView.getFeedButtonDest()]!!, rssService, model, graphicsUtils)
 		readView = ReadView(carApp.states[homeView.getEntryListDest()] as RHMIState.ToolbarState, model)
 		readoutView = ReadoutView(carApp.states[readView.getReadoutDest()] as RHMIState.ToolbarState, readoutController, model)
 
