@@ -23,6 +23,7 @@ object L {
 	val FEEDS by StringResourceDelegate("Feeds")
 	val UNREAD by StringResourceDelegate("Unread")
 	val STARRED by StringResourceDelegate("Starred")
+	val EMPTY by StringResourceDelegate("Empty")
 
 	fun loadResources(context: Context, locale: Locale? = null) {
 		val thisContext = if (locale == null) { context } else {

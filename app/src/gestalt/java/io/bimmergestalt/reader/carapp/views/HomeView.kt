@@ -75,14 +75,21 @@ class HomeView(state: RHMIState, val rssService: RssService, val model: Model): 
 				else -> emptyList()
 			}
 			model.articles.value = data
-			entriesList.getModel()?.value = object: RHMIModel.RaListModel.RHMIListAdapter<ArticleWithFeed>(2, data) {
-				override fun convertRow(index: Int, item: ArticleWithFeed): Array<Any> {
-					val icon = if (item.article.isUnread) "•"
-					else if (item.article.isStarred) "★"
-					else ""
-					return arrayOf(icon, item.article.title)
+			if (data.isNotEmpty()) {
+				entriesList.getModel()?.value = object: RHMIModel.RaListModel.RHMIListAdapter<ArticleWithFeed>(2, data) {
+					override fun convertRow(index: Int, item: ArticleWithFeed): Array<Any> {
+						val icon = if (item.article.isUnread) "•"
+						else if (item.article.isStarred) "★"
+						else ""
+						return arrayOf(icon, item.article.title)
+					}
+				}
+			} else {
+				entriesList.getModel()?.value = RHMIModel.RaListModel.RHMIListConcrete(2).apply {
+					addRow(arrayOf("", L.EMPTY))
 				}
 			}
+			entriesList.setEnabled(data.isNotEmpty())
 			entriesList.setProperty(RHMIProperty.PropertyId.LABEL_WAITINGANIMATION, false)
 		}
 	}
