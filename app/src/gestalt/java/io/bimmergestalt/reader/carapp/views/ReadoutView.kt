@@ -44,7 +44,6 @@ class ReadoutView(state: RHMIState.ToolbarState, val controller: ReadoutControll
 
 		globalCoroutineScope.launch {
 			model.article.collectLatest { article ->   // new article was opened in ReadView
-				controller.stop()
 				val htmlContents = Utils.parseHtml(article?.article?.fullContent ?: "")
 				val contents = Utils.formatForReadout(htmlContents)
 				controller.loadLines(contents)

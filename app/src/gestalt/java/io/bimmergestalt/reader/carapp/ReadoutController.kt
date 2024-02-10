@@ -112,10 +112,10 @@ class ReadoutController(val name: String, val speechEvent: RHMIEvent.ActionEvent
 	}
 
 	fun loadLines(lines: List<String>) {
+		stop()
 		this.lines.value = lines
 		this.lineIndex.value = 0
 		nextLineIndex = 0
-		desiredState = ReadoutState.IDLE
 	}
 
 	fun play() {
@@ -140,11 +140,17 @@ class ReadoutController(val name: String, val speechEvent: RHMIEvent.ActionEvent
 
 	private fun readLine() {
 		val line = lines.value.getOrNull(lineIndex.value) ?: ""
-		val data = RHMIModel.RaListModel.RHMIListConcrete(2)
-		data.addRow(arrayOf(line, name))
-		Log.d(TAG, "Starting readout from $name: ${data[0][0]}")
-		speechList.setValue(data, 0, 1, 1)
-		speechEvent.triggerEvent()
+		if (line.isNotBlank()) {
+			val data = RHMIModel.RaListModel.RHMIListConcrete(2)
+			data.addRow(arrayOf(line, name))
+			Log.d(TAG, "Starting readout from $name: ${data[0][0]}")
+			try {
+				speechList.setValue(data, 0, 1, 1)
+				speechEvent.triggerEvent()
+			} catch (e: Exception) {
+				Log.e(TAG, "Error while reading: ", e)
+			}
+		}
 
 		// cue the next line to play
 		if (lineIndex.value < lines.value.size - 1) {
@@ -165,15 +171,21 @@ class ReadoutController(val name: String, val speechEvent: RHMIEvent.ActionEvent
 		commandEvent.triggerEvent()
 	}
 	fun stop() {
-		desiredState = ReadoutState.IDLE
-		_stop()
+		if (desiredState != ReadoutState.IDLE) {
+			desiredState = ReadoutState.IDLE
+			_stop()
+		}
 	}
 	private fun _stop() {
 		Log.d(TAG, "Cancelling $name readout")
 		val data = RHMIModel.RaListModel.RHMIListConcrete(2).apply {
 			addRow(arrayOf(ReadoutCommand.STOP.value, name))
 		}
-		commandList.setValue(data, 0, 1, 1)
-		commandEvent.triggerEvent()
+		try {
+			commandList.setValue(data, 0, 1, 1)
+			commandEvent.triggerEvent()
+		} catch (e: Exception) {
+			Log.e(TAG, "Error while stopping: ", e)
+		}
 	}
 }
