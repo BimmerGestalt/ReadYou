@@ -1,6 +1,7 @@
 package io.bimmergestalt.reader.carapp
 
 import android.util.Log
+import androidx.annotation.Keep
 import io.bimmergestalt.idriveconnectkit.rhmi.RHMIApplication
 import io.bimmergestalt.idriveconnectkit.rhmi.RHMIEvent
 import io.bimmergestalt.idriveconnectkit.rhmi.RHMIModel
@@ -10,9 +11,11 @@ import kotlin.math.max
 import kotlin.math.min
 
 
+@Keep
 data class HMITTS(  // the json decoder object
 	val TTSState: TTSState
 )
+@Keep
 data class TTSState(    // the actual state
 	val state: Int?,
 	val currentblock: Int?,

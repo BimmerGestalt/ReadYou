@@ -202,5 +202,5 @@ dependencies {
 
     // BimmerGestalt
     gestaltImplementation 'io.bimmergestalt:IDriveConnectKit:0.6'
-    gestaltImplementation 'io.bimmergestalt:IDriveConnectKitAndroid:0.5'
+    gestaltImplementation 'io.bimmergestalt:IDriveConnectKitAndroid:0.6'
 }
