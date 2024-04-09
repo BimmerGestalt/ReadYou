@@ -5,6 +5,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -17,6 +19,7 @@ import me.ash.reader.domain.model.account.Account
 import me.ash.reader.domain.service.AccountService
 import me.ash.reader.domain.service.OpmlService
 import me.ash.reader.domain.service.RssService
+import me.ash.reader.infrastructure.di.ApplicationScope
 import me.ash.reader.infrastructure.di.DefaultDispatcher
 import me.ash.reader.infrastructure.di.IODispatcher
 import me.ash.reader.infrastructure.di.MainDispatcher
@@ -33,11 +36,14 @@ class AccountViewModel @Inject constructor(
     private val defaultDispatcher: CoroutineDispatcher,
     @MainDispatcher
     private val mainDispatcher: CoroutineDispatcher,
+    @ApplicationScope
+    private val applicationScope: CoroutineScope,
 ) : ViewModel() {
 
     private val _accountUiState = MutableStateFlow(AccountUiState())
     val accountUiState: StateFlow<AccountUiState> = _accountUiState.asStateFlow()
     val accounts = accountService.getAccounts()
+    var addAccountJob: Job? = null
 
     fun initData(accountId: Int) {
         viewModelScope.launch(ioDispatcher) {
@@ -46,7 +52,7 @@ class AccountViewModel @Inject constructor(
     }
 
     fun update(accountId: Int, block: Account.() -> Unit) {
-        viewModelScope.launch(ioDispatcher) {
+        applicationScope.launch(ioDispatcher) {
             accountService.update(accountId, block)
             rssService.get(accountId).clearAuthorization()
         }
@@ -98,10 +104,13 @@ class AccountViewModel @Inject constructor(
     }
 
     fun addAccount(account: Account, callback: (account: Account?, exception: Exception?) -> Unit) {
-        viewModelScope.launch(ioDispatcher) {
+        setLoading(true)
+        addAccountJob = applicationScope.launch(ioDispatcher) {
             val addAccount = accountService.addAccount(account)
             try {
-                if (rssService.get(addAccount.type.id).validCredentials(account)) {
+                val rssService = rssService.get(addAccount.type.id)
+                if (rssService.validCredentials(account)) {
+                    rssService.doSyncOneTime()
                     withContext(mainDispatcher) {
                         callback(addAccount, null)
                     }
@@ -113,6 +122,8 @@ class AccountViewModel @Inject constructor(
                 withContext(mainDispatcher) {
                     callback(null, e)
                 }
+            } finally {
+                setLoading(false)
             }
         }
     }
@@ -135,6 +146,21 @@ class AccountViewModel @Inject constructor(
             }
         }
     }
+
+    private fun setLoading(isLoading: Boolean) {
+        viewModelScope.launch {
+            _accountUiState.update {
+                it.copy(
+                    isLoading = isLoading
+                )
+            }
+        }
+    }
+    
+    fun cancelAdd() {
+        addAccountJob?.cancel()
+        setLoading(false)
+    }
 }
 
 data class AccountUiState(
@@ -142,6 +168,7 @@ data class AccountUiState(
     val deleteDialogVisible: Boolean = false,
     val clearDialogVisible: Boolean = false,
     val exportOPMLMode: ExportOPMLMode = ExportOPMLMode.ATTACH_INFO,
+    val isLoading: Boolean = false,
 )
 
 sealed class ExportOPMLMode {

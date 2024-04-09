@@ -1,16 +1,84 @@
 package me.ash.reader.domain.repository
 
 import androidx.paging.PagingSource
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import androidx.room.RewriteQueriesToDropUnusedColumns
+import androidx.room.Transaction
+import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 import me.ash.reader.domain.model.article.Article
 import me.ash.reader.domain.model.article.ArticleMeta
 import me.ash.reader.domain.model.article.ArticleWithFeed
 import me.ash.reader.domain.model.feed.ImportantNum
-import java.util.*
+import java.util.Date
 
 @Dao
 interface ArticleDao {
+
+    @Query(
+        """
+        UPDATE article SET isStarred = :isStarred 
+        WHERE accountId = :accountId
+        AND id in (:ids)
+        """
+    )
+    fun markAsStarredByIdSet(
+        accountId: Int,
+        ids: Set<String>,
+        isStarred: Boolean,
+    ): Int
+
+    @Query(
+        """
+        UPDATE article SET isUnread = :isUnread 
+        WHERE accountId = :accountId
+        AND id in (:ids)
+        """
+    )
+    fun markAsReadByIdSet(
+        accountId: Int,
+        ids: Set<String>,
+        isUnread: Boolean,
+    ): Int
+
+    @Transaction
+    @RewriteQueriesToDropUnusedColumns
+    @Query(
+        """
+        SELECT count(1)
+        FROM article
+        WHERE feedId = :feedId
+        AND isStarred = :isStarred
+        AND accountId = :accountId
+        """
+    )
+    fun countByFeedIdWhenIsStarred(
+        accountId: Int,
+        feedId: String,
+        isStarred: Boolean,
+    ): Int
+
+    @Transaction
+    @RewriteQueriesToDropUnusedColumns
+    @Query(
+        """
+        SELECT count(1)
+        FROM article AS a
+        LEFT JOIN feed AS b ON b.id = a.feedId
+        LEFT JOIN `group` AS c ON c.id = b.groupId
+        WHERE c.id = :groupId
+        AND a.isStarred = :isStarred
+        AND a.accountId = :accountId
+        """
+    )
+    fun countByGroupIdWhenIsStarred(
+        accountId: Int,
+        groupId: String,
+        isStarred: Boolean,
+    ): Int
 
     @Transaction
     @Query(
@@ -218,11 +286,13 @@ interface ArticleDao {
         before: Date,
     )
 
+    @Transaction
     @Query(
         """
         UPDATE article SET isUnread = :isUnread 
         WHERE accountId = :accountId
         AND date < :before
+        AND isUnread != :isUnread
         """
     )
     suspend fun markAllAsRead(
@@ -231,6 +301,7 @@ interface ArticleDao {
         before: Date,
     )
 
+    @Transaction
     @Query(
         """
         UPDATE article SET isUnread = :isUnread 
@@ -239,6 +310,7 @@ interface ArticleDao {
             WHERE groupId = :groupId
         )
         AND accountId = :accountId
+        AND isUnread != :isUnread
         AND date < :before
         """
     )
@@ -249,11 +321,13 @@ interface ArticleDao {
         before: Date,
     )
 
+    @Transaction
     @Query(
         """
         UPDATE article SET isUnread = :isUnread 
         WHERE feedId = :feedId
         AND accountId = :accountId
+        AND isUnread != :isUnread
         AND date < :before
         """
     )
@@ -264,6 +338,7 @@ interface ArticleDao {
         before: Date,
     )
 
+    @Transaction
     @Query(
         """
         UPDATE article SET isUnread = :isUnread 
@@ -569,6 +644,17 @@ interface ArticleDao {
         """
         SELECT id, isUnread, isStarred FROM article
         WHERE accountId = :accountId
+        AND isUnread = :isUnread
+        ORDER BY date DESC
+        """
+    )
+    fun queryMetadataAll(accountId: Int, isUnread: Boolean): List<ArticleMeta>
+
+    @Transaction
+    @Query(
+        """
+        SELECT id, isUnread, isStarred FROM article
+        WHERE accountId = :accountId
         AND date < :before
         ORDER BY date DESC
         """
@@ -580,11 +666,12 @@ interface ArticleDao {
         """
         SELECT id, isUnread, isStarred FROM article
         WHERE accountId = :accountId
-        AND feedId = :feedId
+        AND isUnread = :isUnread
+        AND date < :before
         ORDER BY date DESC
         """
     )
-    fun queryMetadataByFeedId(accountId: Int, feedId: String): List<ArticleMeta>
+    fun queryMetadataAll(accountId: Int, isUnread: Boolean, before: Date): List<ArticleMeta>
 
     @Transaction
     @Query(
@@ -592,11 +679,24 @@ interface ArticleDao {
         SELECT id, isUnread, isStarred FROM article
         WHERE accountId = :accountId
         AND feedId = :feedId
+        AND isUnread = :isUnread
+        ORDER BY date DESC
+        """
+    )
+    fun queryMetadataByFeedId(accountId: Int, feedId: String, isUnread: Boolean): List<ArticleMeta>
+
+    @Transaction
+    @Query(
+        """
+        SELECT id, isUnread, isStarred FROM article
+        WHERE accountId = :accountId
+        AND feedId = :feedId
+        AND isUnread = :isUnread
         AND date < :before
         ORDER BY date DESC
         """
     )
-    fun queryMetadataByFeedId(accountId: Int, feedId: String, before: Date): List<ArticleMeta>
+    fun queryMetadataByFeedId(accountId: Int, feedId: String, isUnread: Boolean, before: Date): List<ArticleMeta>
 
     @Transaction
     @Query(
@@ -607,10 +707,11 @@ interface ArticleDao {
         LEFT JOIN `group` AS c ON c.id = b.groupId
         WHERE c.id = :groupId
         AND a.accountId = :accountId
+        AND a.isUnread = :isUnread
         ORDER BY a.date DESC
         """
     )
-    fun queryMetadataByGroupId(accountId: Int, groupId: String): List<ArticleMeta>
+    fun queryMetadataByGroupIdWhenIsUnread(accountId: Int, groupId: String, isUnread: Boolean): List<ArticleMeta>
 
     @Transaction
     @Query(
@@ -621,11 +722,12 @@ interface ArticleDao {
         LEFT JOIN `group` AS c ON c.id = b.groupId
         WHERE c.id = :groupId
         AND a.accountId = :accountId
+        AND a.isUnread = :isUnread
         AND a.date < :before
         ORDER BY a.date DESC
         """
     )
-    fun queryMetadataByGroupId(accountId: Int, groupId: String, before: Date): List<ArticleMeta>
+    fun queryMetadataByGroupIdWhenIsUnread(accountId: Int, groupId: String, isUnread: Boolean, before: Date): List<ArticleMeta>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(vararg article: Article)
