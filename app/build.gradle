@@ -7,6 +7,8 @@ plugins {
     id 'com.mikepenz.aboutlibraries.plugin'
 }
 
+apply from: '../external/external.gradle'
+
 def gitCommitHash = "git rev-parse --verify --short HEAD".execute().text.trim()
 def keyProps = new Properties()
 def keyPropsFile = rootProject.file("signature/keystore.properties")
@@ -52,6 +54,9 @@ android {
             dimension "channel"
             applicationIdSuffix ".google.play"
         }
+        gestalt {
+            dimension "channel"
+        }
     }
     signingConfigs {
         release {
@@ -74,7 +79,7 @@ android {
     }
     applicationVariants.all { variant ->
         variant.outputs.each { output ->
-            output.outputFileName = "ReadYou-${defaultConfig.versionName}-${gitCommitHash}.apk"
+            output.outputFileName = "ReadYou-${variant.flavorName}-${defaultConfig.versionName}-${gitCommitHash}.apk"
         }
     }
     kotlinOptions {
@@ -219,4 +224,8 @@ dependencies {
     testImplementation "org.mockito:mockito-core:5.11.0"
     testImplementation 'org.mockito:mockito-junit-jupiter:5.11.0'
     testImplementation "org.mockito.kotlin:mockito-kotlin:5.2.1"
+
+    // BimmerGestalt
+    gestaltImplementation 'io.bimmergestalt:IDriveConnectKit:0.6'
+    gestaltImplementation 'io.bimmergestalt:IDriveConnectKitAndroid:0.6'
 }

@@ -7,23 +7,15 @@
 <br>
 
 <div align="center">
-    <img alt="GitHub" src="https://img.shields.io/github/license/Ashinch/ReadYou?color=c3e7ff&style=flat-square">
-    <a target="_blank" href="https://github.com/Ashinch/ReadYou/releases">
-        <img alt="Version" src="https://img.shields.io/github/v/release/Ashinch/ReadYou?color=c3e7ff&label=version&style=flat-square">
-    </a>
-    <img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/Ashinch/ReadYou?color=c3e7ff&style=flat-square">
-    <br>
-    <a target="_blank" href="https://t.me/ReadYouApp">
-        <img alt="Telegram" src="https://img.shields.io/badge/Telegram-ReadYouApp-c3e7ff?logo=telegram&style=flat-square">
-    </a>
-    <a target="_blank" href="https://www.figma.com/file/ViBW8GbUgkTMmK6a80h8X1/Read-You?node-id=7028%3A23673">
-        <img alt="Figma" src="https://img.shields.io/badge/Figma-ReadYou-c3e7ff?logo=figma&style=flat-square">
+    <img alt="GitHub" src="https://img.shields.io/github/license/BimmerGestalt/ReadYou?color=c3e7ff&style=flat-square">
+    <a target="_blank" href="https://github.com/Ashinch/ReadYou">
+        <img alt="Upstream" src="https://img.shields.io/badge/upstream-ReadYou-c3e7ff?&style=flat-square">
     </a>
 </div>
 
 <div align="center">
     <h1>Read You</h1>
-    <p>An Android RSS reader presented in <a target="_blank" href="https://m3.material.io/">Material You</a> style.</p>
+    <p>An Android RSS reader presented in <a target="_blank" href="https://m3.material.io/">Material You</a> style, with BMW/Mini app support.</p>
     <p>English&nbsp;&nbsp;|&nbsp;&nbsp;
     <a target="_blank" href="https://github.com/Ashinch/ReadYou/blob/main/README-de.md">Deutsch</a>&nbsp;&nbsp;|&nbsp;&nbsp;
     <a target="_blank" href="https://github.com/Ashinch/ReadYou/blob/main/README-zh-CN.md">简体中文</a>&nbsp;&nbsp;|&nbsp;&nbsp;
@@ -71,29 +63,13 @@ The following are the progress made so far and the goals to be worked on in the 
 - [ ] Feedbin
 - [ ] ...
 
+If an [AAIdrive](https://github.com/BimmerGestalt/AAIdrive)-compatible car is connected, then ReadYou will be added as a News icon to the ConnectedDrive interface in the car.
+
 ## Download
 
-[<img src="https://s1.ax1x.com/2023/01/12/pSu1a36.png" alt="Get it on GitHub" height="80">](https://github.com/Ashinch/ReadYou/releases)
-[<img src="https://s1.ax1x.com/2023/01/12/pSnTZ0f.png"
-     alt="Get it on Telegram Channel"
-     height="80">](https://t.me/ReadYouApp)
-[<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
-     alt="Get it on F-Droid"
-     height="80">](https://f-droid.org/packages/me.ash.reader/)
+[<img src="https://s1.ax1x.com/2023/01/12/pSu1a36.png" alt="Get it on GitHub" height="80">](https://github.com/BimmerGestalt/ReadYou/releases)
 
-F-Droid releases can not upgrade to other releases and it is compiled, signed and distributed uniformly by [F-Droid](https://f-droid.org/docs/FAQ_-_General/).
-
-## Nightly
-
-We offer Nightly versions for testing purposes. These versions include the latest features and improvements but may not be as stable as our regular releases. Please note that Nightly builds might have bugs and are not recommended for everyday use.
-
-You can download the Nightly version from the following link:
-
-<a target="_blank" href="https://github.com/Ashinch/ReadYou/actions/workflows/build_commit.yaml">Check Nightly Builds</a>
-
-Choose the latest workflow from the GitHub Actions page and download the artifacts from the workflow's summary page (You may require logging in to GitHub).
-
-**Remember to back up your data before trying the Nightly version in case of any issues.**
+Please use the [official ReadYou app](https://github.com/Ashinch/ReadYou) if you don't need car features because it will be more updated.
 
 ## Sponsorship
 
