@@ -1,14 +1,12 @@
 package me.ash.reader.infrastructure.rss
 
-import android.content.Context
 import be.ceau.opml.OpmlParser
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import me.ash.reader.domain.model.feed.Feed
 import me.ash.reader.domain.model.group.Group
 import me.ash.reader.domain.model.group.GroupWithFeed
 import me.ash.reader.infrastructure.di.IODispatcher
-import me.ash.reader.ui.ext.currentAccountId
+import me.ash.reader.infrastructure.preference.PreferencesReader
 import me.ash.reader.ui.ext.extractDomain
 import me.ash.reader.ui.ext.spacerDollar
 import java.io.InputStream
@@ -16,8 +14,7 @@ import java.util.*
 import javax.inject.Inject
 
 class OPMLDataSource @Inject constructor(
-    @ApplicationContext
-    private val context: Context,
+    private val preferences: PreferencesReader,
     @IODispatcher
     private val ioDispatcher: CoroutineDispatcher,
 ) {
@@ -27,7 +24,7 @@ class OPMLDataSource @Inject constructor(
         inputStream: InputStream,
         defaultGroup: Group,
     ): List<GroupWithFeed> {
-        val accountId = context.currentAccountId
+        val accountId = preferences.currentAccountId
         val opml = OpmlParser().parse(inputStream)
         val groupWithFeedList = mutableListOf<GroupWithFeed>().also {
             it.addGroup(defaultGroup)
@@ -41,7 +38,7 @@ class OPMLDataSource @Inject constructor(
                     if (!it.attributes.getOrDefault("isDefault", null).toBoolean()) {
                         groupWithFeedList.addGroup(
                             Group(
-                                id = context.currentAccountId.spacerDollar(
+                                id = preferences.currentAccountId.spacerDollar(
                                     UUID.randomUUID().toString()
                                 ),
                                 name = it.attributes.getOrDefault("title", null) ?: it.text!!,
@@ -52,7 +49,7 @@ class OPMLDataSource @Inject constructor(
                 } else {
                     groupWithFeedList.addFeedToDefault(
                         Feed(
-                            id = context.currentAccountId.spacerDollar(
+                            id = preferences.currentAccountId.spacerDollar(
                                 UUID.randomUUID().toString()
                             ),
                             name = it.attributes.getOrDefault("title", null) ?: it.text!!,
@@ -71,7 +68,7 @@ class OPMLDataSource @Inject constructor(
                 var groupId = defaultGroup.id
                 if (!it.attributes.getOrDefault("isDefault", null).toBoolean()) {
                     groupId =
-                        context.currentAccountId.spacerDollar(UUID.randomUUID().toString())
+                        preferences.currentAccountId.spacerDollar(UUID.randomUUID().toString())
                     groupWithFeedList.addGroup(
                         Group(
                             id = groupId,
@@ -86,7 +83,7 @@ class OPMLDataSource @Inject constructor(
                             ?: throw IllegalArgumentException("${outline.attributes} xmlUrl is null")
                         groupWithFeedList.addFeed(
                             Feed(
-                                id = context.currentAccountId.spacerDollar(
+                                id = preferences.currentAccountId.spacerDollar(
                                     UUID.randomUUID().toString()
                                 ),
                                 name = outline.attributes.getOrDefault("title", null)

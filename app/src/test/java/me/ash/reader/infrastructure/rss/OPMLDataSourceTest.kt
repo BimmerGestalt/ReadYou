@@ -1,18 +1,17 @@
 package me.ash.reader.infrastructure.rss
 
-import android.content.Context
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.runBlocking
 import me.ash.reader.domain.model.group.Group
 import me.ash.reader.domain.model.group.GroupWithFeed
-import me.ash.reader.ui.ext.currentAccountId
+import me.ash.reader.infrastructure.preference.PreferencesReader
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
-import org.mockito.Mockito.`when`
 import org.mockito.junit.MockitoJUnitRunner
+import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 
 internal const val OPML_TEMPLATE: String = """
@@ -33,7 +32,7 @@ internal const val OPML_TEMPLATE: String = """
 class OPMLDataSourceTest {
 
     @Mock
-    private lateinit var mockContext: Context
+    private lateinit var mockPreferences: PreferencesReader
 
     @Mock
     private lateinit var mockIODispatcher: CoroutineDispatcher
@@ -46,10 +45,11 @@ class OPMLDataSourceTest {
 
     @Before
     fun setUp() {
-        mockContext = mock<Context> { }
+        mockPreferences = mock<PreferencesReader> {
+            on { currentAccountId } doReturn 1
+        }
         mockIODispatcher = mock<CoroutineDispatcher> {}
-        `when`(mockContext.currentAccountId).thenReturn(1)
-        opmlDataSource = OPMLDataSource(mockContext, mockIODispatcher)
+        opmlDataSource = OPMLDataSource(mockPreferences, mockIODispatcher)
     }
 
     @Test
@@ -63,9 +63,9 @@ class OPMLDataSourceTest {
                 inputStream = opml.byteInputStream(Charsets.UTF_8),
                 defaultGroup = defaultGroup
             )
-            Assert.assertTrue("", result.size == 1)
+            Assert.assertEquals(2, result.size) // includes the defaultGroup and the outline group
         }
     }
 }
 
-private fun fill(str: String): String = OPML_TEMPLATE.replace("{{var}}", str)
+private fun fill(str: String): String = OPML_TEMPLATE.replace("{{var}}", str).trim()
