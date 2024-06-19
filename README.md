@@ -71,11 +71,11 @@ If an [AAIdrive](https://github.com/BimmerGestalt/AAIdrive)-compatible car is co
 
 Please use the [official ReadYou app](https://github.com/Ashinch/ReadYou) if you don't need car features because it will be more updated.
 
-## Sponsor
+## Sponsorship
 
 **Read You** is a free open source software that benefits from the open source community and every user can enjoy it's full functionality for free, so if you appreciate my current work, you can buy me a cup of coffee ☕️.
 
-<a href="https://www.buymeacoffee.com/ashinch"><img width="200px" src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=ashinch&button_colour=FFDD00&font_colour=000000&font_family=Cookie&outline_colour=000000&coffee_colour=ffffff" /></a>
+[<img src="https://s1.ax1x.com/2023/01/12/pSnHqpQ.png" alt="donate" height="80">](https://afdian.net/a/ashinch)
 
 Thanks for all the love and support ❤️
 

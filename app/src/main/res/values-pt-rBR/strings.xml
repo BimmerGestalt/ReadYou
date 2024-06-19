@@ -107,7 +107,7 @@
     <string name="basic_fonts">Fontes Básicas</string>
     <string name="feeds_page">Página de Feeds</string>
     <string name="flow_page">Página de Flow</string>
-    <string name="change_log">Changelog</string>
+    <string name="change_log">Histórico de atualizações</string>
     <string name="skip_this_version">Pular Esta Versão</string>
     <string name="checking_updates">Verificando atualizações…</string>
     <string name="is_latest_version">Esta é a versão mais recente do app</string>
@@ -180,7 +180,7 @@
     <string name="rearrange_buttons">Rearranjar os botões</string>
     <string name="bionic_reading">Leitura Biônica</string>
     <string name="images">Imagens</string>
-    <string name="align_left">Alinhar a Esquerda</string>
+    <string name="align_start">Alinhar a Esquerda</string>
     <string name="use_app_theme">Usar o tema do aplicativo</string>
     <string name="advanced">Avançado</string>
     <string name="dark_reading_theme">Tema escuro durante a leitura</string>
@@ -195,7 +195,7 @@
     <string name="title">Título</string>
     <string name="alignment">Alinhamento</string>
     <string name="general">Geral</string>
-    <string name="align_right">Alinhar a Direita</string>
+    <string name="align_end">Alinhar a Direita</string>
     <string name="center_text">Centralizar o Texto</string>
     <string name="justify">Justificar o Texto</string>
     <string name="auto_hide_toolbars">Esconder automaticamente a barra de ferramentas</string>
@@ -274,4 +274,38 @@
     <string name="read_excluding_starred">Lido, excluindo favorito</string>
     <string name="grey_out_articles">Artigos em cinza</string>
     <string name="external_links">Links externos</string>
+    <string name="copy_error_report">Copiar relatório de erros</string>
+    <string name="unexpected_error_title">Ops! Algo deu errado…</string>
+    <string name="unexpected_error_msg">O aplicativo encontrou um erro inesperado e teve que ser fechado.
+\n
+\nPara nos ajudar a identificar e corrigir esse problema rapidamente, você pode %1$s usar o rastreamento de pilha de erros abaixo.</string>
+    <string name="submit_bug_report">envie um relatório de bug no GitHub</string>
+    <string name="next_article">Próximo artigo</string>
+    <string name="swipe_to_start">Deslizar para a esquerda</string>
+    <string name="none">Nenhum</string>
+    <string name="toggle_read">Alternar leitura</string>
+    <string name="swipe_to_end">Deslizar para a direita</string>
+    <string name="toggle_starred">Alternar favorito</string>
+    <string name="pull_to_switch_article">Puxe para mudar de artigo</string>
+    <string name="export">Exportar</string>
+    <string name="permission_denied">Permissão negada</string>
+    <string name="save">Salvar</string>
+    <string name="image_saved">Imagem salva</string>
+    <string name="mark_above_as_read">Marcar acima como lido</string>
+    <string name="mark_below_as_read">Marcar abaixo como lido</string>
+    <string name="line_height_multiple">Altura da linha múltipla</string>
+    <string name="only_link">Somente link</string>
+    <string name="title_and_link">Título e link</string>
+    <string name="keep_archived_tips">Itens arquivados são artigos marcados como lidos, sem estrela e sem tag. A configuração \"Manter artigos arquivados\" só tem efeito nestes dispositivos. Artigos arquivados mais antigos serão excluídos destes dispositivos. A exclusão de artigos não pode ser desfeita.</string>
+    <string name="shared_content">Conteúdo compartilhado</string>
+    <string name="troubleshooting">Solução de problemas</string>
+    <string name="troubleshooting_desc">Relatório de erro, ferramentas de depuração</string>
+    <string name="bug_report">Relatório de erro</string>
+    <string name="app_preferences">Preferências de aplicativos</string>
+    <string name="import_from_protobuf_file">Importar do arquivo protobuf</string>
+    <string name="invalid_protobuf_file_warning">Este arquivo pode não ser um arquivo protobuf válido. Importá-lo pode corromper o aplicativo e resultar na perda das preferências atuais. Tem certeza de que deseja continuar?</string>
+    <string name="export_as_protobuf_file">Exportar como arquivo protobuf</string>
+    <string name="export_as_json">Exportar como JSON</string>
+    <string name="import_from_json">Importar JSON</string>
+    <string name="invalid_json_file_warning">Esse arquivo pode não ser um arquivo JSON válido. Sua importação pode corromper o aplicativo e resultar na perda das preferências atuais. Tem certeza de que deseja continuar?</string>
 </resources>

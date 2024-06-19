@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import me.ash.reader.R
 import me.ash.reader.domain.model.constant.ElevationTokens
@@ -62,11 +63,13 @@ fun SearchBar(
                         .height(56.dp)
                         .fillMaxWidth()
                         .focusRequester(focusRequester),
-                    colors = TextFieldDefaults.textFieldColors(
-                        textColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        containerColor = Color.Transparent,
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent,
+                    colors = TextFieldDefaults.colors(
+                            unfocusedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            focusedContainerColor = Color.Transparent,
+                            unfocusedContainerColor = Color.Transparent,
+                            disabledContainerColor = Color.Transparent,
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent,
                     ),
                     value = value,
                     onValueChange = { onValueChange(it) },
@@ -76,6 +79,8 @@ fun SearchBar(
                             text = placeholder,
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
                         )
                     },
                     textStyle = MaterialTheme.typography.bodyLarge,

@@ -58,7 +58,8 @@ fun Preferences.toSettings(): Settings {
         readingPageTonalElevation = ReadingPageTonalElevationPreference.fromPreferences(this),
         readingAutoHideToolbar = ReadingAutoHideToolbarPreference.fromPreferences(this),
         readingTextFontSize = ReadingTextFontSizePreference.fromPreferences(this),
-        readingLetterSpacing = ReadingLetterSpacingPreference.fromPreferences(this),
+        readingTextLineHeight = ReadingTextLineHeightPreference.fromPreferences(this),
+        readingLetterSpacing = ReadingTextLetterSpacingPreference.fromPreferences(this),
         readingTextHorizontalPadding = ReadingTextHorizontalPaddingPreference.fromPreferences(this),
         readingTextAlign = ReadingTextAlignPreference.fromPreferences(this),
         readingTextBold = ReadingTextBoldPreference.fromPreferences(this),
@@ -76,8 +77,12 @@ fun Preferences.toSettings(): Settings {
         // Interaction
         initialPage = InitialPagePreference.fromPreferences(this),
         initialFilter = InitialFilterPreference.fromPreferences(this),
+        swipeStartAction = SwipeStartActionPreference.fromPreferences(this),
+        swipeEndAction = SwipeEndActionPreference.fromPreferences(this),
+        pullToSwitchArticle = PullToSwitchArticlePreference.fromPreference(this),
         openLink = OpenLinkPreference.fromPreferences(this),
         openLinkSpecificBrowser = OpenLinkSpecificBrowserPreference.fromPreferences(this),
+        sharedContent = SharedContentPreference.fromPreferences(this),
 
         // Languages
         languages = LanguagesPreference.fromPreferences(this),

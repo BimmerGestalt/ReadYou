@@ -2,18 +2,19 @@ package me.ash.reader.ui.ext
 
 import android.annotation.SuppressLint
 import android.content.Context
-import androidx.core.os.ConfigurationCompat
 import me.ash.reader.R
 import java.text.DateFormat
 import java.text.ParsePosition
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
+import java.util.Locale
 
 @SuppressLint("SimpleDateFormat")
 object DateFormat {
     val YYYY_MM_DD_HH_MM_SS = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
     val YYYY_MM_DD_DASH_HH_MM_SS = SimpleDateFormat("yyyy-MM-dd-HH:mm:ss")
+    val YYYY_MM_DD_DASH_HH_MM_SS_DASH = SimpleDateFormat("yyyy-MM-dd-HH-mm-ss")
 }
 
 fun Date.toString(format: SimpleDateFormat): String {
@@ -25,18 +26,18 @@ fun Date.formatAsString(
     onlyHourMinute: Boolean? = false,
     atHourMinute: Boolean? = false,
 ): String {
-    val locale = ConfigurationCompat.getLocales(context.resources.configuration)[0]
+    val locale = Locale.getDefault()
     val df = DateFormat.getDateInstance(DateFormat.FULL, locale)
     return when {
         onlyHourMinute == true -> {
-            SimpleDateFormat("HH:mm", locale).format(this)
+            this.toTimeString(context = context)
         }
 
         atHourMinute == true -> {
             context.getString(
                 R.string.date_at_time,
                 df.format(this),
-                SimpleDateFormat("HH:mm", locale).format(this),
+                this.toTimeString(context = context),
             )
         }
 
@@ -58,6 +59,10 @@ fun Date.formatAsString(
         }
     }
 }
+
+private fun Date.toTimeString(context: Context): String =
+    android.text.format.DateFormat.getTimeFormat(context).format(this)
+
 
 private fun String.parseToDate(
     patterns: Array<String> = arrayOf(
@@ -81,3 +86,5 @@ private fun String.parseToDate(
     }
     return null
 }
+
+fun Date.isFuture(staticDate: Date = Date()): Boolean = this.time > staticDate.time

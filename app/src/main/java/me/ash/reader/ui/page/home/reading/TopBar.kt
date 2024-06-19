@@ -22,9 +22,10 @@ import androidx.compose.ui.zIndex
 import androidx.navigation.NavHostController
 import me.ash.reader.R
 import me.ash.reader.infrastructure.preference.LocalReadingPageTonalElevation
+import me.ash.reader.infrastructure.preference.LocalSharedContent
 import me.ash.reader.ui.component.base.FeedbackIconButton
 import me.ash.reader.ui.component.base.RYExtensibleVisibility
-import me.ash.reader.ui.ext.share
+import me.ash.reader.ui.ext.surfaceColorAtElevation
 import me.ash.reader.ui.page.common.RouteName
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -32,12 +33,14 @@ import me.ash.reader.ui.page.common.RouteName
 fun TopBar(
     navController: NavHostController,
     isShow: Boolean,
+    windowInsets: WindowInsets = WindowInsets(0.dp),
     title: String? = "",
     link: String? = "",
     onClose: () -> Unit = {},
 ) {
     val context = LocalContext.current
     val tonalElevation = LocalReadingPageTonalElevation.current
+    val sharedContent = LocalSharedContent.current
 
     Box(
         modifier = Modifier
@@ -49,7 +52,7 @@ fun TopBar(
             TopAppBar(
                 title = {},
                 modifier = Modifier,
-                windowInsets = WindowInsets(0.dp),
+                windowInsets = windowInsets,
                 navigationIcon = {
                     FeedbackIconButton(
                         imageVector = Icons.Rounded.Close,
@@ -76,13 +79,10 @@ fun TopBar(
                         contentDescription = stringResource(R.string.share),
                         tint = MaterialTheme.colorScheme.onSurface,
                     ) {
-                        context.share(title
-                            ?.takeIf { it.isNotBlank() }
-                            ?.let { it + "\n" } + link
-                        )
+                        sharedContent.share(context, title, link)
                     }
                 }, colors = TopAppBarDefaults.smallTopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
+                    containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(tonalElevation.value.dp),
                 )
             )
         }

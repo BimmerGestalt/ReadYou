@@ -35,4 +35,10 @@
 -keep class com.rometools.** { *; }
 
 # Provider API
--keep class me.ash.reader.infrastructure.** { *; }
+-keep class me.ash.reader.** { *; }
+
+# https://github.com/flutter/flutter/issues/127388
+-dontwarn org.kxml2.io.KXml**
+
+# https://youtrack.jetbrains.com/issue/KTOR-5528
+-dontwarn org.slf4j.impl.StaticLoggerBinder

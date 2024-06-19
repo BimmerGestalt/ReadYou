@@ -1,17 +1,32 @@
 package me.ash.reader.ui.page.home.flow
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.ArrowBack
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.DoneAll
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
@@ -23,12 +38,24 @@ import androidx.work.WorkInfo
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import me.ash.reader.R
-import me.ash.reader.domain.model.article.ArticleFlowItem
+import me.ash.reader.domain.model.article.ArticleWithFeed
 import me.ash.reader.domain.model.general.Filter
 import me.ash.reader.domain.model.general.MarkAsReadConditions
-import me.ash.reader.infrastructure.preference.*
+import me.ash.reader.infrastructure.preference.LocalFlowArticleListDateStickyHeader
+import me.ash.reader.infrastructure.preference.LocalFlowArticleListFeedIcon
+import me.ash.reader.infrastructure.preference.LocalFlowArticleListTonalElevation
+import me.ash.reader.infrastructure.preference.LocalFlowFilterBarFilled
+import me.ash.reader.infrastructure.preference.LocalFlowFilterBarPadding
+import me.ash.reader.infrastructure.preference.LocalFlowFilterBarStyle
+import me.ash.reader.infrastructure.preference.LocalFlowFilterBarTonalElevation
+import me.ash.reader.infrastructure.preference.LocalFlowTopBarTonalElevation
+import me.ash.reader.infrastructure.preference.LocalSharedContent
 import me.ash.reader.ui.component.FilterBar
-import me.ash.reader.ui.component.base.*
+import me.ash.reader.ui.component.base.DisplayText
+import me.ash.reader.ui.component.base.FeedbackIconButton
+import me.ash.reader.ui.component.base.RYExtensibleVisibility
+import me.ash.reader.ui.component.base.RYScaffold
+import me.ash.reader.ui.component.base.SwipeRefresh
 import me.ash.reader.ui.ext.collectAsStateValue
 import me.ash.reader.ui.page.common.RouteName
 import me.ash.reader.ui.page.home.HomeViewModel
@@ -52,6 +79,8 @@ fun FlowPage(
     val filterBarFilled = LocalFlowFilterBarFilled.current
     val filterBarPadding = LocalFlowFilterBarPadding.current
     val filterBarTonalElevation = LocalFlowFilterBarTonalElevation.current
+    val sharedContent = LocalSharedContent.current
+    val context = LocalContext.current
 
     val homeUiState = homeViewModel.homeUiState.collectAsStateValue()
     val flowUiState = flowViewModel.flowUiState.collectAsStateValue()
@@ -67,8 +96,64 @@ fun FlowPage(
 
     val owner = LocalLifecycleOwner.current
     var isSyncing by remember { mutableStateOf(false) }
-    homeViewModel.syncWorkLiveData.observe(owner) {
-        it?.let { isSyncing = it.any { it.state == WorkInfo.State.RUNNING } }
+
+    DisposableEffect(owner) {
+        homeViewModel.syncWorkLiveData.observe(owner) { workInfoList ->
+            workInfoList.let {
+                isSyncing = it.any { workInfo -> workInfo.state == WorkInfo.State.RUNNING }
+            }
+        }
+        onDispose { homeViewModel.syncWorkLiveData.removeObservers(owner) }
+    }
+
+    val onToggleStarred: (ArticleWithFeed, Long) -> Unit = remember {
+        { article, delay ->
+            flowViewModel.updateStarredStatus(
+                articleId = article.article.id,
+                isStarred = !article.article.isStarred,
+                withDelay = delay
+            )
+        }
+    }
+
+    val onToggleRead: (ArticleWithFeed, Long) -> Unit = remember {
+        { article, delay ->
+            flowViewModel.updateReadStatus(
+                groupId = null,
+                feedId = null,
+                articleId = article.article.id,
+                conditions = MarkAsReadConditions.All,
+                isUnread = !article.article.isUnread,
+                withDelay = delay
+            )
+        }
+    }
+    val onMarkAboveAsRead: ((ArticleWithFeed) -> Unit)? = remember {
+        {
+            flowViewModel.markAsReadFromListByDate(
+                date = it.article.date,
+                isBefore = false,
+                lazyPagingItems = pagingItems
+            )
+        }
+    }
+
+    val onMarkBelowAsRead: ((ArticleWithFeed) -> Unit)? = remember {
+        {
+            flowViewModel.markAsReadFromListByDate(
+                date = it.article.date,
+                isBefore = true,
+                lazyPagingItems = pagingItems
+            )
+        }
+    }
+
+    val onShare: ((ArticleWithFeed) -> Unit)? = remember {
+        { articleWithFeed ->
+            with(articleWithFeed.article) {
+                sharedContent.share(context, title, link)
+            }
+        }
     }
 
     LaunchedEffect(onSearch) {
@@ -102,7 +187,7 @@ fun FlowPage(
         containerTonalElevation = articleListTonalElevation.value.dp,
         navigationIcon = {
             FeedbackIconButton(
-                imageVector = Icons.Rounded.ArrowBack,
+                imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
                 contentDescription = stringResource(R.string.back),
                 tint = MaterialTheme.colorScheme.onSurface
             ) {
@@ -167,6 +252,7 @@ fun FlowPage(
                     }
                 }
             ) {
+                var showMenu by remember { mutableStateOf(false) }
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     state = listState,
@@ -192,11 +278,12 @@ fun FlowPage(
                             },
                         ) {
                             markAsRead = false
-                            flowViewModel.markAsRead(
+                            flowViewModel.updateReadStatus(
                                 groupId = filterUiState.group?.id,
                                 feedId = filterUiState.feed?.id,
                                 articleId = null,
                                 conditions = it,
+                                isUnread = false
                             )
                         }
                         RYExtensibleVisibility(visible = onSearch) {
@@ -238,20 +325,19 @@ fun FlowPage(
                         isShowFeedIcon = articleListFeedIcon.value,
                         isShowStickyHeader = articleListDateStickyHeader.value,
                         articleListTonalElevation = articleListTonalElevation.value,
-                        onClick =  {
+                        isSwipeEnabled = { listState.isScrollInProgress },
+                        onClick = {
                             onSearch = false
                             navController.navigate("${RouteName.READING}/${it.article.id}") {
                                 launchSingleTop = true
                             }
-                        }
-                    ) {
-                        flowViewModel.markAsRead(
-                            groupId = null,
-                            feedId = null,
-                            articleId = it.article.id,
-                            MarkAsReadConditions.All
-                        )
-                    }
+                        },
+                        onToggleStarred = onToggleStarred,
+                        onToggleRead = onToggleRead,
+                        onMarkAboveAsRead = onMarkAboveAsRead,
+                        onMarkBelowAsRead = onMarkBelowAsRead,
+                        onShare = onShare,
+                    )
                     item {
                         Spacer(modifier = Modifier.height(128.dp))
                         Spacer(modifier = Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
@@ -275,8 +361,9 @@ fun FlowPage(
                         flowUiState.listState.scrollToItem(0)
                     }
                 }
-                homeViewModel.changeFilter(filterUiState.copy(filter = it))
-                homeViewModel.fetchArticles()
+                if (filterUiState.filter != it) {
+                    homeViewModel.changeFilter(filterUiState.copy(filter = it))
+                }
             }
         }
     )

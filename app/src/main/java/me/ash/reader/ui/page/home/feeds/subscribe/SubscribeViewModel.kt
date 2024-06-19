@@ -1,12 +1,12 @@
 package me.ash.reader.ui.page.home.feeds.subscribe
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rometools.rome.feed.synd.SyndFeed
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -52,18 +52,14 @@ class SubscribeViewModel @Inject constructor(
         searchJob?.cancel()
         searchJob = null
         _subscribeUiState.update {
-            SubscribeUiState().copy(title = androidStringsHelper.getString(R.string.subscribe))
+            SubscribeUiState(title = androidStringsHelper.getString(R.string.subscribe))
         }
     }
 
     fun importFromInputStream(inputStream: InputStream) {
         applicationScope.launch {
-            try {
-                opmlService.saveToDatabase(inputStream)
-                rssService.get().doSync()
-            } catch (e: Exception) {
-                Log.e("FeedsViewModel", "importFromInputStream: ", e)
-            }
+            opmlService.saveToDatabase(inputStream)
+            rssService.get().doSync()
         }
     }
 
@@ -75,7 +71,9 @@ class SubscribeViewModel @Inject constructor(
         if (_subscribeUiState.value.newGroupContent.isNotBlank()) {
             applicationScope.launch {
                 // TODO: How to add a single group without no feeds via Google Reader API?
-                selectedGroup(rssService.get().addGroup(null, _subscribeUiState.value.newGroupContent))
+                selectedGroup(
+                    rssService.get().addGroup(null, _subscribeUiState.value.newGroupContent)
+                )
                 hideNewGroupDialog()
                 _subscribeUiState.update { it.copy(newGroupContent = "") }
             }
@@ -139,7 +137,8 @@ class SubscribeViewModel @Inject constructor(
                 _subscribeUiState.update {
                     it.copy(
                         title = androidStringsHelper.getString(R.string.subscribe),
-                        errorMessage = e.message ?: androidStringsHelper.getString(R.string.unknown),
+                        errorMessage = e.message
+                            ?: androidStringsHelper.getString(R.string.unknown),
                         lockLinkInput = false,
                     )
                 }
@@ -173,6 +172,24 @@ class SubscribeViewModel @Inject constructor(
 
     fun inputNewGroup(content: String) {
         _subscribeUiState.update { it.copy(newGroupContent = content) }
+    }
+
+    fun handleSharedUrlFromIntent(url: String) {
+        viewModelScope.launch {
+            _subscribeUiState.update {
+                it.copy(
+                    visible = true,
+                    shouldNavigateToFeedPage = true,
+                    linkContent = url,
+                    errorMessage = "",
+                )
+            }
+            delay(50)
+        }.invokeOnCompletion { search() }
+    }
+
+    fun onIntentConsumed() {
+        _subscribeUiState.update { it.copy(shouldNavigateToFeedPage = false) }
     }
 
     fun showDrawer() {
@@ -238,4 +255,5 @@ data class SubscribeUiState(
     val isSearchPage: Boolean = true,
     val newName: String = "",
     val renameDialogVisible: Boolean = false,
+    val shouldNavigateToFeedPage: Boolean = false,
 )

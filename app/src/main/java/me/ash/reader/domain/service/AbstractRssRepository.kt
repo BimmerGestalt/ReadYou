@@ -98,11 +98,12 @@ abstract class AbstractRssRepository(
         supervisorScope {
             coroutineWorker.setProgress(SyncWorker.setIsSyncing(true))
             val preTime = System.currentTimeMillis()
+            val preDate = Date(preTime)
             val accountId = context.currentAccountId
             feedDao.queryAll(accountId)
                 .chunked(16)
                 .forEach {
-                    it.map { feed -> async { syncFeed(feed) } }
+                    it.map { feed -> async { syncFeed(feed, preDate) } }
                         .awaitAll()
                         .forEach {
                             if (it.feed.isNotification) {
@@ -160,14 +161,22 @@ abstract class AbstractRssRepository(
         }
     }
 
+    open suspend fun batchMarkAsRead(articleIds: Set<String>, isUnread: Boolean) {
+        val accountId = context.currentAccountId
+        articleIds.takeIf { it.isNotEmpty() }?.chunked(500)?.forEachIndexed { index, it ->
+            Log.d("RLog", "sync markAsRead: ${(index * 500) + it.size}/${articleIds.size} num")
+            articleDao.markAsReadByIdSet(accountId, it.toSet(), isUnread)
+        }
+    }
+
     open suspend fun markAsStarred(articleId: String, isStarred: Boolean) {
         val accountId = context.currentAccountId
         articleDao.markAsStarredByArticleId(accountId, articleId, isStarred)
     }
 
-    private suspend fun syncFeed(feed: Feed): FeedWithArticle {
+    private suspend fun syncFeed(feed: Feed, preDate: Date = Date()): FeedWithArticle {
         val latest = articleDao.queryLatestByFeedId(context.currentAccountId, feed.id)
-        val articles = rssHelper.queryRssXml(feed, latest?.link)
+        val articles = rssHelper.queryRssXml(feed, latest?.link, preDate)
         if (feed.icon == null) {
             val iconLink = rssHelper.queryRssIconLink(feed.url)
             if (iconLink != null) {
@@ -325,7 +334,7 @@ abstract class AbstractRssRepository(
         ) {
             return
         }
-        deleteArticles(group = group)
+        deleteArticles(group = group, includeStarred = true)
         feedDao.deleteByGroupId(accountId, group.id)
         groupDao.delete(group)
     }
@@ -336,14 +345,14 @@ abstract class AbstractRssRepository(
         ) {
             return
         }
-        deleteArticles(feed = feed)
+        deleteArticles(feed = feed, includeStarred = true)
         feedDao.delete(feed)
     }
 
-    suspend fun deleteArticles(group: Group? = null, feed: Feed? = null) {
+    suspend fun deleteArticles(group: Group? = null, feed: Feed? = null, includeStarred: Boolean = false) {
         when {
-            group != null -> articleDao.deleteByGroupId(context.currentAccountId, group.id)
-            feed != null -> articleDao.deleteByFeedId(context.currentAccountId, feed.id)
+            group != null -> articleDao.deleteByGroupId(context.currentAccountId, group.id, includeStarred)
+            feed != null -> articleDao.deleteByFeedId(context.currentAccountId, feed.id, includeStarred)
         }
     }
 

@@ -21,6 +21,12 @@ import me.ash.reader.infrastructure.preference.OpenLinkPreference
 import me.ash.reader.infrastructure.preference.OpenLinkSpecificBrowserPreference
 import java.io.File
 
+fun Context.restart() {
+    packageManager.getLaunchIntentForPackage(packageName)?.let {
+        startActivity(Intent.makeRestartActivityTask(it.component))
+        Runtime.getRuntime().exit(0)
+    }
+}
 
 fun Context.findActivity(): Activity? = when (this) {
     is Activity -> this
@@ -66,23 +72,13 @@ fun Context.showToastLong(message: String?) {
     showToast(message, Toast.LENGTH_LONG)
 }
 
-fun Context.share(content: String) {
-    startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND).apply {
-        putExtra(
-            Intent.EXTRA_TEXT,
-            content,
-        )
-        type = "text/plain"
-    }, getString(R.string.share)))
-}
-
 fun Context.openURL(
     url: String?,
     openLink: OpenLinkPreference,
     specificBrowser: OpenLinkSpecificBrowserPreference = OpenLinkSpecificBrowserPreference.default
 ) {
     if (!url.isNullOrBlank()) {
-        val uri = url.toUri()
+        val uri = url.trim { it.isWhitespace() || it == '\n' }.toUri()
         val intent = Intent(Intent.ACTION_VIEW, uri)
         val customTabsIntent = CustomTabsIntent.Builder().setShowTitle(true).build()
         try {

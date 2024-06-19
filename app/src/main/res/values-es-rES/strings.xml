@@ -32,7 +32,7 @@
     <string name="back">Atrás</string>
     <string name="go_to">Ir a</string>
     <string name="settings">Ajustes</string>
-    <string name="refresh">Actualizar</string>
+    <string name="refresh">Refrescar</string>
     <string name="search">Buscar</string>
     <string name="searching">Buscando…</string>
     <string name="subscribe">Suscribir</string>
@@ -87,8 +87,8 @@
     <string name="mark_as_read_one_day">Marcar como leído hace más de 1 día</string>
     <string name="mark_as_read_three_days">Marcar como leído hace más de 3 días</string>
     <string name="mark_as_read_seven_days">Marcar como leído hace más de 7 días</string>
-    <string name="one_day">1 día</string>
-    <string name="three_days">3 días</string>
+    <string name="one_day">1 d</string>
+    <string name="three_days">3d</string>
     <string name="seven_days">7 días</string>
     <string name="close">Cerrar</string>
     <string name="get_new_updates">Obtener nuevas actualizaciones</string>
@@ -190,8 +190,8 @@
     <string name="images">Imágenes</string>
     <string name="rounded_corners">Esquinas redondeadas</string>
     <string name="videos">Vídeos</string>
-    <string name="align_left">Alinear a la izquierda</string>
-    <string name="align_right">Alinear a la derecha</string>
+    <string name="align_start">Alinear a la izquierda</string>
+    <string name="align_end">Alinear a la derecha</string>
     <string name="center_text">Centrar texto</string>
     <string name="justify">Justificar</string>
     <string name="external_fonts">Fuentes externas</string>
@@ -273,4 +273,42 @@
     <string name="exclude">Excluir</string>
     <string name="include_additional_info">Incluir información adicional</string>
     <string name="additional_info_desc">La información adicional incluye opciones de configuración para cada fuente, como permitir notificaciones, analizar el contenido completo, etc. Si desea utilizar el archivo OPML exportado con otros lectores, seleccione \"Excluir\".</string>
+    <string name="read_excluding_starred">Leer, sin estrellas</string>
+    <string name="external_links">Enlaces externos</string>
+    <string name="unexpected_error_title">¡Uy! Algo salió mal…</string>
+    <string name="unexpected_error_msg">La aplicación ha encontrado un error inesperado y ha tenido que cerrarse.
+\n
+\nPara ayudarnos a identificar y solucionar este problema rápidamente, puedes %1$s con el rastreo de pila de error a continuación.</string>
+    <string name="next_article">Artículo siguiente</string>
+    <string name="grey_out_articles">Artículos en gris</string>
+    <string name="all_read">Leer todo</string>
+    <string name="copy_error_report">Copiar el informe de error</string>
+    <string name="submit_bug_report">envíe un informe de error a GitHub</string>
+    <string name="swipe_to_start">Desliza a la izquierda</string>
+    <string name="swipe_to_end">Desliza a la derecha</string>
+    <string name="none">Nada</string>
+    <string name="toggle_read">Alterna leídos</string>
+    <string name="toggle_starred">Alterna favoritos</string>
+    <string name="export">Exportar</string>
+    <string name="pull_to_switch_article">Tirar para cambiar de artículo</string>
+    <string name="save">Guardar</string>
+    <string name="image_saved">Imagen guardada</string>
+    <string name="permission_denied">Permiso denegado</string>
+    <string name="mark_below_as_read">Marque a continuación como leído</string>
+    <string name="mark_above_as_read">Marcar arriba como leído</string>
+    <string name="line_height_multiple">Altura de la línea múltiple</string>
+    <string name="shared_content">Contenidos compartidos</string>
+    <string name="only_link">Único enlace</string>
+    <string name="title_and_link">Título y enlace</string>
+    <string name="keep_archived_tips">Los artículos archivados son artículos marcados como leídos, sin estrellas y sin etiquetas. El ajuste \"Conservar artículos archivados\" sólo es efectivo en estos dispositivos. Los artículos archivados más antiguos se eliminarán de estos dispositivos. La eliminación de artículos no se puede deshacer.</string>
+    <string name="troubleshooting">Solución de problemas</string>
+    <string name="troubleshooting_desc">Informe de errores, herramientas de depuración</string>
+    <string name="bug_report">Informe de error</string>
+    <string name="app_preferences">Ajustes de la aplicación</string>
+    <string name="import_from_protobuf_file">Importar desde archivo protobuf</string>
+    <string name="export_as_protobuf_file">Exportar como archivo protobuf</string>
+    <string name="invalid_protobuf_file_warning">Este archivo puede no ser un archivo protobuf válido. Importarlo podría corromper la aplicación y provocar la pérdida de las preferencias actuales. ¿Está seguro de que desea continuar?</string>
+    <string name="export_as_json">Exportar como JSON</string>
+    <string name="import_from_json">Importar desde JSON</string>
+    <string name="invalid_json_file_warning">Es posible que este archivo no sea un archivo JSON válido. Importarlo podría dañar la aplicación y provocar la pérdida de las preferencias actuales. ¿Estas seguro que deseas continuar?</string>
 </resources>

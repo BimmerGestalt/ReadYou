@@ -17,6 +17,7 @@ import me.ash.reader.infrastructure.di.IODispatcher
 import me.ash.reader.infrastructure.net.NetworkDataSource
 import me.ash.reader.infrastructure.rss.OPMLDataSource
 import me.ash.reader.infrastructure.rss.RssHelper
+import me.ash.reader.infrastructure.storage.AndroidImageDownloader
 import me.ash.reader.ui.ext.del
 import me.ash.reader.ui.ext.getLatestApk
 import me.ash.reader.ui.ext.isGitHub
@@ -92,6 +93,9 @@ class AndroidApp : Application(), Configuration.Provider {
     @Inject
     lateinit var imageLoader: ImageLoader
 
+    @Inject
+    lateinit var imageDownloader: AndroidImageDownloader
+
     /**
      * When the application startup.
      *
@@ -113,7 +117,8 @@ class AndroidApp : Application(), Configuration.Provider {
     /**
      * Override the [Configuration.Builder] to provide the [HiltWorkerFactory].
      */
-    override fun getWorkManagerConfiguration(): Configuration =
+    override val workManagerConfiguration: Configuration
+        get() =
         Configuration.Builder()
             .setWorkerFactory(workerFactory)
             .setMinimumLoggingLevel(android.util.Log.DEBUG)

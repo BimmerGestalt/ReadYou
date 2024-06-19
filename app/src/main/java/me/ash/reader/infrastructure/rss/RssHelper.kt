@@ -18,6 +18,7 @@ import me.ash.reader.infrastructure.di.IODispatcher
 import me.ash.reader.infrastructure.html.Readability
 import me.ash.reader.ui.ext.currentAccountId
 import me.ash.reader.ui.ext.decodeHTML
+import me.ash.reader.ui.ext.isFuture
 import me.ash.reader.ui.ext.spacerDollar
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -25,6 +26,9 @@ import okhttp3.executeAsync
 import java.io.InputStream
 import java.util.*
 import javax.inject.Inject
+
+val enclosureRegex = """<enclosure\s+url="([^"]+)"\s+type=".*"\s*/>""".toRegex()
+val imgRegex = """img.*?src=(["'])((?!data).*?)\1""".toRegex(RegexOption.DOT_MATCHES_ALL)
 
 /**
  * Some operations on RSS.
@@ -67,6 +71,7 @@ class RssHelper @Inject constructor(
     suspend fun queryRssXml(
         feed: Feed,
         latestLink: String?,
+        preDate: Date = Date(),
     ): List<Article> =
         try {
             val accountId = context.currentAccountId
@@ -76,7 +81,7 @@ class RssHelper @Inject constructor(
                     .entries
                     .asSequence()
                     .takeWhile { latestLink == null || latestLink != it.link }
-                    .map { buildArticleFromSyndEntry(feed, accountId, it) }
+                    .map { buildArticleFromSyndEntry(feed, accountId, it, preDate) }
                     .toList()
             }
         } catch (e: Exception) {
@@ -89,6 +94,7 @@ class RssHelper @Inject constructor(
         feed: Feed,
         accountId: Int,
         syndEntry: SyndEntry,
+        preDate: Date = Date(),
     ): Article {
         val desc = syndEntry.description?.value
         val content = syndEntry.contents
@@ -108,25 +114,29 @@ class RssHelper @Inject constructor(
             id = accountId.spacerDollar(UUID.randomUUID().toString()),
             accountId = accountId,
             feedId = feed.id,
-            date = syndEntry.publishedDate ?: syndEntry.updatedDate ?: Date(),
+            date = (syndEntry.publishedDate ?: syndEntry.updatedDate)?.takeIf { !it.isFuture(preDate) } ?: preDate,
             title = syndEntry.title.decodeHTML() ?: feed.name,
             author = syndEntry.author,
             rawDescription = (content ?: desc) ?: "",
             shortDescription = Readability.parseToText(desc ?: content, syndEntry.link).take(110),
             fullContent = content,
-            img = findImg((content ?: desc) ?: ""),
+            img = findThumbnail(content ?: desc),
             link = syndEntry.link ?: "",
-            updateAt = Date(),
+            updateAt = preDate,
         )
     }
 
-    fun findImg(rawDescription: String): String? {
-        // From: https://gitlab.com/spacecowboy/Feeder
+    fun findThumbnail(text: String?): String? {
+        text ?: return null
+        val enclosure = enclosureRegex.find(text)?.groupValues?.get(1)
+        if (enclosure?.isNotBlank() == true) {
+            return enclosure
+        }
+        // From https://gitlab.com/spacecowboy/Feeder
         // Using negative lookahead to skip data: urls, being inline base64
         // And capturing original quote to use as ending quote
-        val regex = """img.*?src=(["'])((?!data).*?)\1""".toRegex(RegexOption.DOT_MATCHES_ALL)
         // Base64 encoded images can be quite large - and crash database cursors
-        return regex.find(rawDescription)?.groupValues?.get(2)?.takeIf { !it.startsWith("data:") }
+        return imgRegex.find(text)?.groupValues?.get(2)?.takeIf { !it.startsWith("data:") }
     }
 
     suspend fun queryRssIconLink(feedLink: String): String? {

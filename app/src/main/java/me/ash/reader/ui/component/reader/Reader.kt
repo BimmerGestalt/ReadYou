@@ -31,13 +31,15 @@ fun LazyListScope.Reader(
     subheadUpperCase: Boolean = false,
     link: String,
     content: String,
+    onImageClick: ((imgUrl: String, altText: String) -> Unit)? = null,
     onLinkClick: (String) -> Unit
 ) {
-    Log.i("RLog", "Reader: ")
+//    Log.i("RLog", "Reader: ")
     htmlFormattedText(
         inputStream = content.byteInputStream(),
         subheadUpperCase = subheadUpperCase,
         baseUrl = link,
+        onImageClick = onImageClick,
         imagePlaceholder = R.drawable.ic_launcher_foreground,
         onLinkClick = onLinkClick
     )

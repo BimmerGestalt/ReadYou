@@ -3,9 +3,10 @@ package me.ash.reader.ui.page.settings.languages
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.Lightbulb
-import androidx.compose.material.icons.rounded.ArrowBack
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -28,6 +29,7 @@ import me.ash.reader.ui.component.base.RYScaffold
 import me.ash.reader.ui.ext.openURL
 import me.ash.reader.ui.page.settings.SettingItem
 import me.ash.reader.ui.theme.palette.onLight
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -35,14 +37,20 @@ fun LanguagesPage(
     navController: NavHostController,
 ) {
     val context = LocalContext.current
-    val languages = LocalLanguages.current
+    val currentLocale = Locale.getDefault()
+
+    val languages = LocalLanguages.current.run {
+        if (toLocale() == currentLocale) this
+        else LanguagesPreference.default
+    }
+
     val scope = rememberCoroutineScope()
 
     RYScaffold(
         containerColor = MaterialTheme.colorScheme.surface onLight MaterialTheme.colorScheme.inverseOnSurface,
         navigationIcon = {
             FeedbackIconButton(
-                imageVector = Icons.Rounded.ArrowBack,
+                imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
                 contentDescription = stringResource(R.string.back),
                 tint = MaterialTheme.colorScheme.onSurface
             ) {
@@ -59,19 +67,22 @@ fun LanguagesPage(
                         icon = Icons.Outlined.Lightbulb,
                         action = {
                             Icon(
-                                imageVector = Icons.Outlined.KeyboardArrowRight,
+                                imageVector = Icons.AutoMirrored.Outlined.KeyboardArrowRight,
                                 contentDescription = stringResource(R.string.go_to),
                             )
                         },
                     ) {
-                        context.openURL(context.getString(R.string.translatable_url), OpenLinkPreference.AutoPreferCustomTabs)
+                        context.openURL(
+                            context.getString(R.string.translatable_url),
+                            OpenLinkPreference.AutoPreferCustomTabs
+                        )
                     }
                     Spacer(modifier = Modifier.height(16.dp))
                 }
                 item {
                     LanguagesPreference.values.map {
                         SettingItem(
-                            title = it.toDesc(context),
+                            title = it.toDesc(),
                             onClick = {
                                 it.put(context, scope)
                             },

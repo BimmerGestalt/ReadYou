@@ -112,7 +112,7 @@
     <string name="every_15_minutes">Сваких 15 минута</string>
     <string name="interaction">Интеракција</string>
     <string name="check_failure">Провера ажурирања није успела</string>
-    <string name="align_left">Поравнај лево</string>
+    <string name="align_start">Поравнај лево</string>
     <string name="keep_archived_articles">Чување архивираних чланака</string>
     <string name="selected">Изабрано</string>
     <string name="icons">Иконице</string>
@@ -161,7 +161,7 @@
     <string name="sponsor">Спонзор</string>
     <string name="for_3_days">3 дана</string>
     <string name="deny">Одбиј</string>
-    <string name="align_right">Поравнај десно</string>
+    <string name="align_end">Поравнај десно</string>
     <string name="block_list">Блок листа</string>
     <string name="specific_browser_name">Претраживач: %1$s</string>
     <string name="specific_browser">Присили одређени претраживач</string>
@@ -273,4 +273,39 @@
     <string name="grey_out_articles">Затамни чланке</string>
     <string name="all_read">Све прочитано</string>
     <string name="read_excluding_starred">Прочитано, изузимајући означено са звездицом</string>
+    <string name="external_links">Спољни линкови</string>
+    <string name="unexpected_error_title">Упс! Дошло је до грешке…</string>
+    <string name="copy_error_report">Копирај извештај о грешци</string>
+    <string name="submit_bug_report">поднесите извештај о грешци на GitHub-у</string>
+    <string name="next_article">Следећи артикл</string>
+    <string name="swipe_to_start">Превуци налево</string>
+    <string name="swipe_to_end">Превуци надесно</string>
+    <string name="none">Ниједно</string>
+    <string name="toggle_read">Укључи читање</string>
+    <string name="toggle_starred">Укључи са звездицом</string>
+    <string name="unexpected_error_msg">Апликација је наишла на неочекивану грешку и морала је да се затвори.
+\n
+\nДа бисте нам помогли да брзо идентификујемо и решимо овај проблем, можете %1$s помоћу праћења грешака у наставку.</string>
+    <string name="export">Извези</string>
+    <string name="pull_to_switch_article">Повуците да бисте променили чланак</string>
+    <string name="save">Сачувај</string>
+    <string name="image_saved">Слика је сачувана</string>
+    <string name="permission_denied">Дозвола је одбијена</string>
+    <string name="mark_below_as_read">Означи доле као прочитано</string>
+    <string name="mark_above_as_read">Означи горе као прочитано</string>
+    <string name="line_height_multiple">Висина линије вишеструка</string>
+    <string name="shared_content">Дељени садржај</string>
+    <string name="only_link">Само линк</string>
+    <string name="title_and_link">Наслов и линк</string>
+    <string name="troubleshooting">Решавање проблема</string>
+    <string name="bug_report">Пријава проблема</string>
+    <string name="troubleshooting_desc">Пријава проблема, алатке за отклањање грешака</string>
+    <string name="app_preferences">Преференце апликације</string>
+    <string name="import_from_protobuf_file">Увоз из protobuf фајла</string>
+    <string name="export_as_protobuf_file">Извоз као protobuf фајл</string>
+    <string name="invalid_protobuf_file_warning">Ова датотека можда није важећа protobuf фајл. Увоз би могао потенцијално да оштети апликацију и резултира губитком тренутних преференција. Желите ли заиста да наставите?</string>
+    <string name="keep_archived_tips">Архивиране ставке су чланци који су означени као прочитани, немају звездицу и нису означени. Подешавање „Чувај архивиране чланке“ је ефективно само на овим уређајима. Старији архивирани чланци ће бити избрисани са овог уређаја. Брисање чланака се не може опозвати.</string>
+    <string name="export_as_json">Извоз као JSON</string>
+    <string name="import_from_json">Увоз из JSON</string>
+    <string name="invalid_json_file_warning">Овај фајл можда није важећи JSON фајл. Увоз би потенцијално могао да оштети апликацију и резултира губитком тренутних преференција. Желите ли заиста да наставите?</string>
 </resources>

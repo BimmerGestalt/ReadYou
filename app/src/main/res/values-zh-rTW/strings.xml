@@ -2,7 +2,7 @@
 <resources>
     <string name="all">全部</string>
     <plurals name="all_desc">
-        <item quantity="other">%1$d 則已封存</item>
+        <item quantity="other">%1$d 則已存檔</item>
     </plurals>
     <string name="unread">未讀</string>
     <plurals name="unread_desc">
@@ -33,7 +33,7 @@
     <string name="already_subscribed">已有訂閱</string>
     <string name="clear">清除</string>
     <string name="paste">貼上</string>
-    <string name="feed_or_site_url">消息來源或網址</string>
+    <string name="feed_or_site_url">消息來源或網站網址</string>
     <string name="import_from_opml">從 OPML 檔案匯入</string>
     <string name="preset">選項</string>
     <string name="selected">已選擇</string>
@@ -46,27 +46,27 @@
     <string name="all_parse_full_content_toast">全文解析「%1$s」群組中的所有文章</string>
     <string name="all_deny_parse_full_content_toast">不再全文解析「%1$s」群組中的所有文章</string>
     <string name="clear_articles">清除文章</string>
-    <string name="clear_articles_in_feed_toast">已全部清除來源「%1$s」的已封存文章</string>
-    <string name="clear_articles_in_group_toast">已全部清除「%1$s」群組的已封存文章</string>
-    <string name="clear_articles_feed_tips">將來源「%1$s」的已封存文章全部清除</string>
-    <string name="clear_articles_group_tips">將「%1$s」群組的已封存文章全部清除</string>
+    <string name="clear_articles_in_feed_toast">已全部清除來源「%1$s」的文章存檔</string>
+    <string name="clear_articles_in_group_toast">已全部清除「%1$s」群組的文章存檔</string>
+    <string name="clear_articles_feed_tips">將來源「%1$s」的文章存檔全部清除</string>
+    <string name="clear_articles_group_tips">將「%1$s」群組的文章存檔全部清除</string>
     <string name="add_to_group">新增至群組</string>
     <string name="move_to_group">移動至群組</string>
     <string name="all_move_to_group_tips">將「%1$s」群組中的所有來源移動至「%2$s」群組</string>
     <string name="all_move_to_group_toast">已全部移動至「%1$s」群組</string>
     <string name="rename">重新命名</string>
-    <string name="change_url">更改網址</string>
+    <string name="change_url">變更網址</string>
     <string name="rename_toast">已重新命名為「%1$s」</string>
     <string name="create_new_group">建立新群組</string>
     <string name="name">名稱</string>
     <string name="open_with">打開 %1$s</string>
     <string name="options">選項</string>
     <string name="delete">刪除</string>
-    <string name="delete_toast">「%1$s」已刪除</string>
+    <string name="delete_toast">已刪除「%1$s」</string>
     <string name="unsubscribe">取消訂閱</string>
-    <string name="unsubscribe_tips">不再訂閱「%1$s」，並刪除其所有已封存的文章</string>
+    <string name="unsubscribe_tips">不再訂閱「%1$s」，並刪除其所有的文章存檔</string>
     <string name="delete_group">刪除群組</string>
-    <string name="delete_group_tips">刪除「%1$s」群組，同時刪除其所有來源和已封存的文章</string>
+    <string name="delete_group_tips">刪除「%1$s」群組，同時刪除其所有來源和文章存檔</string>
     <string name="group_option_tips">下列選項將套用至本群組中的所有來源</string>
     <string name="today">今天</string>
     <string name="yesterday">昨天</string>
@@ -103,7 +103,7 @@
     <string name="tips_and_support_desc">關於、開放原始碼授權</string>
     <string name="welcome">歡迎</string>
     <string name="tos_tips">請詳閱並同意 Read You 的服務條款與隱私權政策以繼續使用。</string>
-    <string name="browse_tos_tips">詳閱《<u>服務條款與隱私權政策</u>》</string>
+    <string name="browse_tos_tips">瀏覽<i><u>服務條款與隱私權政策</u></i></string>
     <string name="terms_of_service">服務條款</string>
     <string name="tos_content"><h5> 隱私權政策 </h5> <br/> <p> 我非常重視您的隱私。 </p> <br/> <p> <b>Read You</b> 不收集任何使用者資料，所有敏感資訊（密碼和其他帳戶資訊）都被安全地儲存在您裝置上的本機應用程式資料庫中。 </p> <br/> <p> <b>Read You</b> 將使用以下權限為您提供服務： </p> <br/> <p> - 存取網路權限（用於存取您所指定的線上內容） </p> <p> - 讀取網路狀態權限（用於判斷目前裝置是否擁有可供使用的網路條件） </p> <p> - 背景服務權限（用於定時自動地為您同步已收藏的內容） </p> <br/> <br/> <h5> 第三方服務 </h5> <br/> <p> 本政策不適用於您與 <b>Read You</b> 一起使用的第三方服務。您可以在所使用的第三方服務的網站上查閱相關的隱私權政策。 </p> <br/> <br/> <h5> 免責聲明 </h5> <br/> <p> <b>Read You</b> 僅是一款內容收藏工具。您在使用 <b>Read You</b> 的過程中，應遵守所在國家和地區的法律規範，因您的行為所產生的一切責任將由您個人承擔。 </p> <br/> <br/> <h5> 開放原始碼授權 </h5> <br/> <p> <b>Read You</b> 是一個使用 GNU GPL 3.0 開放原始碼授權條款的開源專案[1]，允許您免費使用、引用、修改 <b>Read You</b> 的原始碼，但不允許將修改後及其衍生的程式碼作為專有商業軟體進行發布和銷售。具體細節請查看完整的 GNU GPL 3.0 開放原始碼授權條款 [2]。 </p> <br/> <br/> <h5> 附錄 </h5> <br/> <p> - [1] https://github.com/Ashinch/ReadYou </p> <p> - [2] https://www.gnu.org/licenses/gpl-3.0.html </p></string>
     <string name="agree">同意</string>
@@ -181,8 +181,8 @@
     <string name="images">圖片</string>
     <string name="rounded_corners">圓角</string>
     <string name="videos">影片</string>
-    <string name="align_left">靠左</string>
-    <string name="align_right">靠右</string>
+    <string name="align_start">靠左</string>
+    <string name="align_end">靠右</string>
     <string name="center_text">置中</string>
     <string name="justify">左右</string>
     <string name="external_fonts">外部字型</string>
@@ -229,7 +229,7 @@
     <string name="synchronous">同步</string>
     <string name="sync_interval">同步週期</string>
     <string name="sync_once_on_start">啟動時同步</string>
-    <string name="keep_archived_articles">保留已封存的文章</string>
+    <string name="keep_archived_articles">保留文章存檔</string>
     <string name="export_as_opml">匯出為 OPML</string>
     <string name="clear_all_articles">清除所有文章</string>
     <string name="synchronous_tips">需要重新啟動才能套用變更</string>
@@ -267,4 +267,39 @@
     <string name="grey_out_articles">淡化顯示</string>
     <string name="all_read">已讀的文章</string>
     <string name="read_excluding_starred">已讀且未加星號的文章</string>
+    <string name="submit_bug_report">前往 GitHub 回報錯誤</string>
+    <string name="external_links">外部連結</string>
+    <string name="unexpected_error_title">糟糕！發生錯誤…</string>
+    <string name="copy_error_report">複製偵錯資訊</string>
+    <string name="unexpected_error_msg">由於發生未預期的錯誤，本應用程式必須關閉。
+\n
+\n如要協助我們儘速調查並修正此問題，請%1$s，並附上以下偵錯資訊。</string>
+    <string name="swipe_to_start">向左滑動</string>
+    <string name="swipe_to_end">向右滑動</string>
+    <string name="none">無</string>
+    <string name="toggle_read">標為已讀/未讀</string>
+    <string name="toggle_starred">加上/移除星號</string>
+    <string name="next_article">下一篇</string>
+    <string name="line_height_multiple">行高倍率</string>
+    <string name="export">匯出</string>
+    <string name="pull_to_switch_article">下拉切換文章</string>
+    <string name="mark_above_as_read">將上方文章標為已讀</string>
+    <string name="mark_below_as_read">將下方文章標為已讀</string>
+    <string name="save">儲存</string>
+    <string name="image_saved">已儲存圖片</string>
+    <string name="permission_denied">權限被拒絕</string>
+    <string name="shared_content">分享內容</string>
+    <string name="keep_archived_tips">已歸檔文章是指已標示為已讀、未加星號和未加标签的文章。「保留已歸檔文章」設置僅在此設備上有效。啟用此設置後，較舊的已歸檔文章將從此設備中刪除。刪除文章後無法復原。</string>
+    <string name="only_link">僅連結</string>
+    <string name="title_and_link">標題和連結</string>
+    <string name="troubleshooting">疑難排解</string>
+    <string name="troubleshooting_desc">錯誤報告、偵錯工具</string>
+    <string name="bug_report">錯誤報告</string>
+    <string name="app_preferences">應用程式偏好設定</string>
+    <string name="import_from_protobuf_file">從 protobuf 檔案匯入</string>
+    <string name="export_as_protobuf_file">匯出為 protobuf 檔案</string>
+    <string name="invalid_protobuf_file_warning">該檔案似乎不是有效的 protobuf 檔，匯入後可能會損毀本應用程式並遺失現有偏好設定。你確定要繼續嗎？</string>
+    <string name="import_from_json">從 JSON 匯入</string>
+    <string name="export_as_json">匯出為 JSON</string>
+    <string name="invalid_json_file_warning">此檔案可能不是有效的 JSON 檔案。匯入它可能會損壞應用程式並導致目前的偏好設定遺失。你確定要繼續嗎？</string>
 </resources>

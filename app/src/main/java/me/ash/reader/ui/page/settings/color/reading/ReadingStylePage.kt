@@ -5,18 +5,33 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.automirrored.rounded.Segment
 import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material.icons.outlined.Movie
-import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Segment
 import androidx.compose.material.icons.rounded.Title
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -26,10 +41,27 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import me.ash.reader.R
-import me.ash.reader.infrastructure.preference.*
+import me.ash.reader.infrastructure.preference.LocalPullToSwitchArticle
+import me.ash.reader.infrastructure.preference.LocalReadingAutoHideToolbar
+import me.ash.reader.infrastructure.preference.LocalReadingDarkTheme
+import me.ash.reader.infrastructure.preference.LocalReadingFonts
+import me.ash.reader.infrastructure.preference.LocalReadingPageTonalElevation
+import me.ash.reader.infrastructure.preference.LocalReadingTheme
+import me.ash.reader.infrastructure.preference.ReadingFontsPreference
+import me.ash.reader.infrastructure.preference.ReadingPageTonalElevationPreference
+import me.ash.reader.infrastructure.preference.ReadingThemePreference
+import me.ash.reader.infrastructure.preference.not
 import me.ash.reader.ui.component.ReadingThemePrev
-import me.ash.reader.ui.component.base.*
+import me.ash.reader.ui.component.base.DisplayText
+import me.ash.reader.ui.component.base.FeedbackIconButton
+import me.ash.reader.ui.component.base.RYScaffold
+import me.ash.reader.ui.component.base.RYSwitch
+import me.ash.reader.ui.component.base.RadioDialog
+import me.ash.reader.ui.component.base.RadioDialogOption
+import me.ash.reader.ui.component.base.Subtitle
 import me.ash.reader.ui.ext.ExternalFonts
+import me.ash.reader.ui.ext.MimeType
+import me.ash.reader.ui.ext.showToast
 import me.ash.reader.ui.page.common.RouteName
 import me.ash.reader.ui.page.settings.SettingItem
 import me.ash.reader.ui.theme.palette.onLight
@@ -47,22 +79,24 @@ fun ReadingStylePage(
     val tonalElevation = LocalReadingPageTonalElevation.current
     val fonts = LocalReadingFonts.current
     val autoHideToolbar = LocalReadingAutoHideToolbar.current
+    val pullToSwitchArticle = LocalPullToSwitchArticle.current
+
 
     var tonalElevationDialogVisible by remember { mutableStateOf(false) }
     var fontsDialogVisible by remember { mutableStateOf(false) }
 
-    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         uri?.let {
             ExternalFonts(context, it, ExternalFonts.FontType.ReadingFont).copyToInternalStorage()
             ReadingFontsPreference.External.put(context, scope)
-        }
+        } ?: context.showToast("Cannot get activity result with launcher")
     }
 
     RYScaffold(
         containerColor = MaterialTheme.colorScheme.surface onLight MaterialTheme.colorScheme.inverseOnSurface,
         navigationIcon = {
             FeedbackIconButton(
-                imageVector = Icons.Rounded.ArrowBack,
+                imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
                 contentDescription = stringResource(R.string.back),
                 tint = MaterialTheme.colorScheme.onSurface
             ) {
@@ -169,6 +203,12 @@ fun ReadingStylePage(
                         enabled = false,
                         onClick = {},
                     ) {}
+
+                    SettingItem(
+                        title = stringResource(id = R.string.pull_to_switch_article),
+                        onClick = { pullToSwitchArticle.toggle(context, scope) }) {
+                        RYSwitch(activated = pullToSwitchArticle.value)
+                    }
                     SettingItem(
                         title = stringResource(R.string.tonal_elevation),
                         desc = "${tonalElevation.value}dp",
@@ -198,7 +238,7 @@ fun ReadingStylePage(
                     SettingItem(
                         title = stringResource(R.string.text),
                         desc = stringResource(R.string.text_desc),
-                        icon = Icons.Rounded.Segment,
+                        icon = Icons.AutoMirrored.Rounded.Segment,
                         onClick = {
                             navController.navigate(RouteName.READING_PAGE_TEXT) {
                                 launchSingleTop = true
@@ -261,7 +301,7 @@ fun ReadingStylePage(
                 selected = it == fonts,
             ) {
                 if (it.value == ReadingFontsPreference.External.value) {
-                    launcher.launch("*/*")
+                    launcher.launch(arrayOf(MimeType.FONT))
                 } else {
                     it.put(context, scope)
                 }

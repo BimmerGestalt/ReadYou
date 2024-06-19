@@ -12,7 +12,7 @@ import me.ash.reader.domain.repository.AccountDao
 import me.ash.reader.domain.repository.ArticleDao
 import me.ash.reader.domain.repository.FeedDao
 import me.ash.reader.domain.repository.GroupDao
-import me.ash.reader.ui.ext.DataStoreKeys
+import me.ash.reader.ui.ext.DataStoreKey
 import me.ash.reader.ui.ext.currentAccountId
 import me.ash.reader.ui.ext.dataStore
 import me.ash.reader.ui.ext.getDefaultGroupId
@@ -54,8 +54,8 @@ class AccountService @Inject constructor(
                     )
                 }
             }
-            context.dataStore.put(DataStoreKeys.CurrentAccountId, it.id!!)
-            context.dataStore.put(DataStoreKeys.CurrentAccountType, it.type.id)
+            context.dataStore.put(DataStoreKey.currentAccountId, it.id!!)
+            context.dataStore.put(DataStoreKey.currentAccountType, it.type.id)
         }
 
     suspend fun addDefaultAccount(): Account =
@@ -84,22 +84,15 @@ class AccountService @Inject constructor(
             groupDao.deleteByAccountId(accountId)
             accountDao.delete(it)
             accountDao.queryAll().getOrNull(0)?.let {
-                context.dataStore.put(DataStoreKeys.CurrentAccountId, it.id!!)
-                context.dataStore.put(DataStoreKeys.CurrentAccountType, it.type.id)
+                context.dataStore.put(DataStoreKey.currentAccountId, it.id!!)
+                context.dataStore.put(DataStoreKey.currentAccountType, it.type.id)
             }
         }
     }
 
     suspend fun switch(account: Account) {
         rssService.get().cancelSync()
-        context.dataStore.put(DataStoreKeys.CurrentAccountId, account.id!!)
-        context.dataStore.put(DataStoreKeys.CurrentAccountType, account.type.id)
-
-        // Restart
-        // context.packageManager.getLaunchIntentForPackage(context.packageName)?.let {
-        //     it.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-        //     context.startActivity(it)
-        //     android.os.Process.killProcess(android.os.Process.myPid())
-        // }
+        context.dataStore.put(DataStoreKey.currentAccountId, account.id!!)
+        context.dataStore.put(DataStoreKey.currentAccountType, account.type.id)
     }
 }
